@@ -1,7 +1,6 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -23,9 +22,7 @@ def user_payload(user):
     }
 
 
-class AuthViewSet(viewsets.ViewSet):
-    """User registration, login, logout, and password management endpoints."""
-
+class UserRegistration(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
     @extend_schema(
@@ -35,8 +32,7 @@ class AuthViewSet(viewsets.ViewSet):
         request=RegisterSerializer,
         responses={201: None},
     )
-    @action(detail=False, methods=['post'], url_path='register')
-    def register(self, request):
+    def create(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -52,6 +48,10 @@ class AuthViewSet(viewsets.ViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+
+class UserLogin(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
     @extend_schema(
         tags=['Users'],
         summary='Login with email and password',
@@ -59,8 +59,7 @@ class AuthViewSet(viewsets.ViewSet):
         request=LoginSerializer,
         responses={200: None},
     )
-    @action(detail=False, methods=['post'], url_path='login')
-    def login(self, request):
+    def create(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -76,22 +75,17 @@ class AuthViewSet(viewsets.ViewSet):
             status=status.HTTP_200_OK,
         )
 
+
+class UserAccount(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
     @extend_schema(
         tags=['Users'],
-        summary='Logout and blacklist refresh token',
-        description='Invalidate the refresh token so it cannot be used again.',
-        request=LogoutSerializer,
-        responses={200: None},
+        summary='Get current user account',
+        description='Return id, username, email and name of the logged-in user.',
     )
-    @action(detail=False, methods=['post'], url_path='logout')
-    def logout(self, request):
-        serializer = LogoutSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        return Response(
-            {'message': 'Logout successful.'},
-            status=status.HTTP_200_OK,
-        )
+    def list(self, request):
+        return Response(user_payload(request.user), status=status.HTTP_200_OK)
 
     @extend_schema(
         tags=['Users'],
@@ -100,13 +94,32 @@ class AuthViewSet(viewsets.ViewSet):
         request=ChangePasswordSerializer,
         responses={200: None},
     )
-    @action(detail=False, methods=['post'], url_path='change-password')
-    def change_password(self, request):
+    def create(self, request):
         serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response(
             {'message': 'Password changed successfully.'},
+            status=status.HTTP_200_OK,
+        )
+
+
+class Logout(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        tags=['Users'],
+        summary='Logout and blacklist refresh token',
+        description='Invalidate the refresh token so it cannot be used again.',
+        request=LogoutSerializer,
+        responses={200: None},
+    )
+    def create(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(
+            {'message': 'Logout successful.'},
             status=status.HTTP_200_OK,
         )

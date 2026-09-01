@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
 
-    #apps
+    # apps
     'users',
     'universities',
     'questionnaire',
