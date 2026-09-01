@@ -54,6 +54,10 @@ INSTALLED_APPS = [
 
     #apps
     'users',
+    'universities',
+    'questionnaire',
+    'userprofile',
+    'careerfields',
 ]
 
 MIDDLEWARE = [
@@ -189,10 +193,22 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'NextStep AI API',
-    'DESCRIPTION': 'API documentation for NextStep AI',
+    'DESCRIPTION': 'API documentation for NextStep AI, grouped by app.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
+    'TAGS': [
+        {'name': 'Users', 'description': 'Account register, login, logout and password'},
+        {'name': 'User Profile', 'description': 'Academic profile, education stream and marksheet'},
+        {'name': 'Questionnaire', 'description': 'Career questions, options and saved answers'},
+        {'name': 'Universities', 'description': 'University catalogue used for guidance'},
+        {'name': 'Career Fields', 'description': 'Career fields and personalized recommendations'},
+    ],
+    'SWAGGER_UI_SETTINGS': {
+        'docExpansion': 'list',
+        'filter': True,
+        'persistAuthorization': True,
+    },
 }
 
 
