@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
     ChangePasswordSerializer,
@@ -11,12 +12,23 @@ from .serializers import (
 )
 
 
+def user_payload(user):
+    name = user.get_full_name().strip() or user.username
+    return {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'name': name,
+    }
+
+
 class UserRegistration(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
     @extend_schema(
-        summary='Register a new user',
-        description='Create a new account with username, email, password, and confirm password.',
+        tags=['Users'],
+        summary='Register a new student account',
+        description='Create an account with name, email and password. Returns JWT tokens.',
         request=RegisterSerializer,
         responses={201: None},
     )
@@ -24,15 +36,14 @@ class UserRegistration(viewsets.ViewSet):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        refresh = RefreshToken.for_user(user)
 
         return Response(
             {
                 'message': 'User registered successfully.',
-                'user': {
-                    'id': user.id,
-                    'username': user.username,
-                    'email': user.email,
-                },
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': user_payload(user),
             },
             status=status.HTTP_201_CREATED,
         )
@@ -42,8 +53,9 @@ class UserLogin(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
     @extend_schema(
-        summary='Login user',
-        description='Authenticate a user with email and password and return JWT tokens.',
+        tags=['Users'],
+        summary='Login with email and password',
+        description='Verify credentials and return access token, refresh token and user info.',
         request=LoginSerializer,
         responses={200: None},
     )
@@ -51,35 +63,34 @@ class UserLogin(viewsets.ViewSet):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+        user = data['user']
 
         return Response(
             {
                 'message': 'Login successful.',
                 'access': data['access'],
                 'refresh': data['refresh'],
+                'user': user_payload(user),
             },
             status=status.HTTP_200_OK,
         )
 
 
-class UserProfile(viewsets.ViewSet):
+class UserAccount(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(summary='Get current user profile')
+    @extend_schema(
+        tags=['Users'],
+        summary='Get current user account',
+        description='Return id, username, email and name of the logged-in user.',
+    )
     def list(self, request):
-        user = request.user
-        return Response(
-            {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-            },
-            status=status.HTTP_200_OK,
-        )
+        return Response(user_payload(request.user), status=status.HTTP_200_OK)
 
     @extend_schema(
-        summary='Change password',
-        description='Update the authenticated user password after verifying the current password.',
+        tags=['Users'],
+        summary='Change the logged-in user password',
+        description='Check the current password, then set a new password.',
         request=ChangePasswordSerializer,
         responses={200: None},
     )
@@ -98,8 +109,9 @@ class Logout(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
     @extend_schema(
-        summary='Logout user',
-        description='Invalidate the provided refresh token to log the user out.',
+        tags=['Users'],
+        summary='Logout and blacklist refresh token',
+        description='Invalidate the refresh token so it cannot be used again.',
         request=LogoutSerializer,
         responses={200: None},
     )
