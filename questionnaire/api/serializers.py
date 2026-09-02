@@ -14,12 +14,27 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'text', 'question_type', 'hint', 'order', 'options']
+        fields = [
+            'id',
+            'text',
+            'question_type',
+            'hint',
+            'order',
+            'min_select',
+            'max_select',
+            'options',
+        ]
 
 
 class AnswerItemSerializer(serializers.Serializer):
     question = serializers.IntegerField()
     option_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+
+    def validate_option_ids(self, option_ids):
+        unique = list(dict.fromkeys(option_ids))
+        if len(unique) != len(option_ids):
+            raise serializers.ValidationError('Duplicate options are not allowed.')
+        return unique
 
 
 class SubmitAnswersSerializer(serializers.Serializer):

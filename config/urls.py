@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/', include('questionnaire.api.urls')),
     path('api/', include('universities.api.urls')),
     path('api/', include('careerfields.api.urls')),
+    path('api/', include('scholarships.api.urls')),
 
     path('api/token/', TaggedTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TaggedTokenRefreshView.as_view(), name='token_refresh'),

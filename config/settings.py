@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'questionnaire',
     'userprofile',
     'careerfields',
+    'scholarships',
 ]
 
 MIDDLEWARE = [
@@ -180,10 +181,10 @@ REST_FRAMEWORK = {
 # https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': False,
+    'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
@@ -199,10 +200,11 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,
     'TAGS': [
         {'name': 'Users', 'description': 'Account register, login, logout and password'},
-        {'name': 'User Profile', 'description': 'Academic profile, education stream and marksheet'},
+        {'name': 'User Profile', 'description': 'Education level, stream and subject marks'},
         {'name': 'Questionnaire', 'description': 'Career questions, options and saved answers'},
         {'name': 'Universities', 'description': 'University catalogue used for guidance'},
         {'name': 'Career Fields', 'description': 'Career fields and personalized recommendations'},
+        {'name': 'Scholarships', 'description': 'Government scholarship schemes for students in Pakistan'},
     ],
     'SWAGGER_UI_SETTINGS': {
         'docExpansion': 'list',

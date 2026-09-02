@@ -14,6 +14,8 @@ class Question(models.Model):
     question_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=SINGLE)
     hint = models.CharField(max_length=255, blank=True)
     order = models.PositiveIntegerField(unique=True)
+    min_select = models.PositiveSmallIntegerField(default=1)
+    max_select = models.PositiveSmallIntegerField(default=1)
     is_active = models.BooleanField(default=True)
 
     class Meta:

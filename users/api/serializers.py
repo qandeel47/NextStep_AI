@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -5,54 +7,77 @@ from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+def user_public(user):
+    name = (user.get_full_name() or '').strip() or user.username
+    return {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'name': name,
+        'full_name': name,
+    }
+
+
+def tokens_for(user):
+    refresh = RefreshToken.for_user(user)
+    return str(refresh.access_token), str(refresh)
+
+
+def split_full_name(full_name):
+    parts = (full_name or '').strip().split(None, 1)
+    first = (parts[0] if parts else '')[:150]
+    last = (parts[1] if len(parts) > 1 else '')[:150]
+    return first, last
+
+
+def unique_username(email, requested=''):
+    requested = (requested or '').strip()
+    if requested:
+        return requested
+    local = (email or '').split('@')[0].lower()
+    base = re.sub(r'[^a-z0-9._]', '', local) or 'user'
+    base = base[:140]
+    username = base
+    n = 1
+    while User.objects.filter(username__iexact=username).exists():
+        username = f'{base}{n}'
+        n += 1
+    return username
+
+
+class RegisterSerializer(serializers.Serializer):
+    full_name = serializers.CharField(max_length=150)
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8, trim_whitespace=False)
     confirm_password = serializers.CharField(write_only=True, min_length=8, trim_whitespace=False)
-    full_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    username = serializers.CharField(required=False, allow_blank=True)
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'confirm_password', 'full_name']
+    username = serializers.CharField(required=False, allow_blank=True, max_length=150)
 
     def validate(self, attrs):
-        password = attrs.get('password')
-        confirm_password = attrs.get('confirm_password')
-
-        if password != confirm_password:
+        if attrs.get('password') != attrs.get('confirm_password'):
             raise serializers.ValidationError({'confirm_password': 'Passwords do not match.'})
 
-        email = attrs.get('email', '').lower().strip()
+        email = attrs['email'].lower().strip()
         attrs['email'] = email
-
-        username = (attrs.get('username') or '').strip()
-        if not username:
-            username = email.split('@')[0][:40] or 'student'
-        base = username
-        n = 1
-        while User.objects.filter(username__iexact=username).exists():
-            username = f'{base}{n}'
-            n += 1
-        attrs['username'] = username
-
         if User.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError({'email': 'This email is already registered.'})
 
+        requested = (attrs.get('username') or '').strip()
+        if requested and User.objects.filter(username__iexact=requested).exists():
+            raise serializers.ValidationError({'username': 'This username is already taken.'})
+        attrs['username'] = unique_username(email, requested)
         return attrs
 
     def create(self, validated_data):
         validated_data.pop('confirm_password')
-        full_name = validated_data.pop('full_name', '').strip()
+        full_name = validated_data.pop('full_name')
+        first_name, last_name = split_full_name(full_name)
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
+            first_name=first_name,
+            last_name=last_name,
         )
-        if full_name:
-            parts = full_name.split(' ', 1)
-            user.first_name = parts[0]
-            user.last_name = parts[1] if len(parts) > 1 else ''
-            user.save(update_fields=['first_name', 'last_name'])
         return user
 
 
@@ -69,11 +94,10 @@ class LoginSerializer(serializers.Serializer):
         if user is None or not user.is_active or not user.check_password(password):
             raise serializers.ValidationError('Invalid email or password.')
 
-        refresh = RefreshToken.for_user(user)
+        access, refresh = tokens_for(user)
         attrs['user'] = user
-        attrs['refresh'] = str(refresh)
-        attrs['access'] = str(refresh.access_token)
-
+        attrs['refresh'] = refresh
+        attrs['access'] = access
         return attrs
 
 
@@ -82,13 +106,11 @@ class LogoutSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         refresh_token = attrs.get('refresh')
-
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
         except Exception:
-            raise serializers.ValidationError({'refresh': 'Invalid or expired refresh token.'})
-
+            pass
         return attrs
 
 
