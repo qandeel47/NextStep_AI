@@ -7,3 +7,6 @@ db.sqlite3
 media/
 staticfiles/
 frontend/NextStepAI_UI_Prototype*
+frontend/dist/
+frontend/node_modules/
+.tools/

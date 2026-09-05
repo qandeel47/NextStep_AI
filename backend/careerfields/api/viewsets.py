@@ -39,6 +39,7 @@ class CareerFieldViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecommendationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = CareerFieldSerializer
 
     @extend_schema(
         tags=['Career Fields'],

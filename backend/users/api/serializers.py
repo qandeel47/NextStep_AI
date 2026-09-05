@@ -1,7 +1,10 @@
 import re
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
@@ -55,6 +58,10 @@ class RegisterSerializer(serializers.Serializer):
     def validate(self, attrs):
         if attrs.get('password') != attrs.get('confirm_password'):
             raise serializers.ValidationError({'confirm_password': 'Passwords do not match.'})
+        try:
+            validate_password(attrs['password'])
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({'password': list(exc.messages)}) from exc
 
         email = attrs['email'].lower().strip()
         attrs['email'] = email
@@ -105,13 +112,19 @@ class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
     def validate(self, attrs):
-        refresh_token = attrs.get('refresh')
         try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-        except Exception:
-            pass
+            token = RefreshToken(attrs['refresh'])
+        except TokenError as exc:
+            raise serializers.ValidationError({'refresh': 'Invalid or expired refresh token.'}) from exc
+
+        request = self.context['request']
+        if str(token.get('user_id')) != str(request.user.pk):
+            raise serializers.ValidationError({'refresh': 'This token does not belong to the current user.'})
+        attrs['token'] = token
         return attrs
+
+    def save(self):
+        self.validated_data['token'].blacklist()
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -130,6 +143,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 
         if attrs.get('new_password') == attrs.get('old_password'):
             raise serializers.ValidationError({'new_password': 'New password must be different from the old password.'})
+
+        try:
+            validate_password(attrs['new_password'], user=user)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({'new_password': list(exc.messages)}) from exc
 
         return attrs
 

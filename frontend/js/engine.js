@@ -131,15 +131,29 @@ function scoreField(field) {
 }
 
 function generateRecommendations() {
-  if (state.apiRecs && state.apiRecs.length) return state.apiRecs;
-  return FIELDS.map(scoreField).sort((a, b) => b.match - a.match);
+  if (Array.isArray(state.apiRecs) && state.apiRecs.length) return state.apiRecs;
+  return (FIELDS || []).map(scoreField).sort((a, b) => b.match - a.match);
+}
+
+function filledMarksCount() {
+  const marks = state.academic.marks || {};
+  let n = 0;
+  for (const entry of Object.values(marks)) {
+    const obtained = entry && typeof entry === 'object' ? entry.obtained : entry;
+    if (obtained === '' || obtained == null) continue;
+    if (Number.isNaN(Number(obtained))) continue;
+    n += 1;
+  }
+  return n;
 }
 
 function profileCompletion() {
   let n = 0;
   if (state.academic.level) n += 25;
   if (state.academic.background) n += 15;
-  if (Object.keys(state.academic.marks).length >= 2) n += 20;
+  const marks = filledMarksCount();
+  if (marks >= 2) n += 20;
+  else if (marks === 1) n += 10;
   if (state.quizComplete) n += 40;
   return n;
 }

@@ -1,8 +1,15 @@
-const API_BASE = 'http://127.0.0.1:8000';
+const hostName = window.location.hostname || '';
+const isLocalHost = ['localhost', '127.0.0.1', '[::1]', ''].includes(hostName);
+const isPrivateLan = /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostName);
+const localApiBase = (isLocalHost || isPrivateLan)
+  ? 'http://127.0.0.1:8000'
+  : window.location.origin;
+const API_BASE = String((window.NEXTSTEP_CONFIG || {}).API_BASE || localApiBase).replace(/\/+$/, '');
 
 function mapApiQuestions(rows) {
   return rows.map((q) => ({
     id: q.id,
+    order: q.order,
     text: q.text,
     type: q.question_type,
     hint: q.hint || '',
@@ -19,7 +26,7 @@ function apiErrorMessage(data) {
   const firstKey = Object.keys(data)[0];
   if (!firstKey) return 'Request failed.';
   const val = data[firstKey];
-  if (Array.isArray(val)) return val[0];
+  if (Array.isArray(val)) return typeof val[0] === 'string' ? val[0] : 'Request failed.';
   if (typeof val === 'string') return val;
   return 'Request failed.';
 }
@@ -51,6 +58,7 @@ function setSession(payload) {
       name: payload.user.name || payload.user.full_name || payload.user.username || 'Student',
     };
     localStorage.setItem('ns_user', JSON.stringify(state.user));
+    hydratePersistentUiState();
   }
 }
 
@@ -63,6 +71,7 @@ function hydrateSessionFromStorage() {
   if (userRaw) {
     try { state.user = JSON.parse(userRaw); } catch (e) { state.user = null; }
   }
+  hydratePersistentUiState();
 }
 
 function restoreLastPage() {
@@ -72,7 +81,7 @@ function restoreLastPage() {
     state.page = 'dashboard';
     return;
   }
-  state.page = saved;
+  state.page = saved === 'education' ? 'dashboard' : saved;
   try { state.params = JSON.parse(localStorage.getItem('ns_params') || '{}'); } catch (e) { state.params = {}; }
 }
 
@@ -108,6 +117,16 @@ function clearSession() {
   SCHOLS = [];
   state.unisStatus = 'idle';
   state.scholsStatus = 'idle';
+  state.questionsStatus = 'idle';
+  state.questionsError = '';
+  state.compareIds = [];
+  state.bookmarks = { fields: [], unis: [], schols: [] };
+  state.counselorConversations = [];
+  state.counselorConversationId = '';
+  state.counselorMessages = [];
+  state.counselorStatus = 'idle';
+  state.counselorError = '';
+  state.counselorSending = false;
   if (typeof GUEST_PAGES !== 'undefined' && !GUEST_PAGES.includes(state.page)) {
     state.page = 'landing';
     state.params = {};
@@ -128,7 +147,14 @@ async function loadAuthenticatedAppData() {
 }
 
 async function apiRequest(path, options = {}, retried = false) {
-  const res = await fetch(`${API_BASE}${path}`, options);
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, options);
+  } catch (e) {
+    const err = new Error(`Cannot reach API at ${API_BASE}. Start Django on port 8000, then hard-refresh.`);
+    err.status = 0;
+    throw err;
+  }
   let data = {};
   try { data = await res.json(); } catch (e) { data = {}; }
   if (res.status === 401 && !retried && !path.includes('/api/login') && !path.includes('/api/register') && !path.includes('/api/token/')) {
@@ -157,12 +183,18 @@ function asList(data) {
 }
 
 async function loadQuestionsFromApi() {
+  state.questionsStatus = 'loading';
+  state.questionsError = '';
   try {
     const data = await apiRequest('/api/questions/');
     const mapped = mapApiQuestions(asList(data));
-    if (mapped.length) QUESTIONS = mapped;
+    if (!mapped.length) throw new Error('No questionnaire questions are available.');
+    QUESTIONS = mapped;
+    state.questionsStatus = 'ok';
   } catch (err) {
-    /* Keep local questions if the API is unavailable */
+    QUESTIONS = [];
+    state.questionsStatus = 'error';
+    state.questionsError = err.message || 'Could not load questions from the server.';
   }
 }
 
@@ -206,6 +238,32 @@ function mapSector(sector) {
   return sector || '';
 }
 
+const CITY_PROVINCE = {
+  Lahore: 'Punjab',
+  Taxila: 'Punjab',
+  Faisalabad: 'Punjab',
+  Rawalpindi: 'Punjab',
+  Multan: 'Punjab',
+  Bahawalpur: 'Punjab',
+  Gujrat: 'Punjab',
+  Islamabad: 'Islamabad',
+  Karachi: 'Sindh',
+  Hyderabad: 'Sindh',
+  Jamshoro: 'Sindh',
+  Topi: 'Khyber Pakhtunkhwa',
+  Peshawar: 'Khyber Pakhtunkhwa',
+  Abbottabad: 'Khyber Pakhtunkhwa',
+};
+
+function inferProvince(city, province) {
+  const direct = String(province || '').trim();
+  if (direct) return direct;
+  const name = String(city || '').trim();
+  const parts = name.split(',').map((s) => s.trim()).filter(Boolean);
+  if (parts.length > 1) return parts[parts.length - 1];
+  return CITY_PROVINCE[parts[0] || name] || '';
+}
+
 function fieldIdsFromPrograms(programsText) {
   const text = String(programsText || '').toLowerCase();
   if (!text) return [];
@@ -227,6 +285,8 @@ function mapApiUniversity(u) {
     sector: mapSector(u.sector),
     entry: u.entry_tests || '—',
     ranking: u.province || '—',
+    province: inferProvince(u.city, u.province),
+    cityName: u.city || '',
     students: '—',
     website,
     about: u.admission_criteria || u.merit_formula || '',
@@ -346,6 +406,18 @@ async function apiLogin({ email, password }) {
   return data;
 }
 
+async function apiChangePassword({ oldPassword, newPassword, confirmPassword }) {
+  return apiRequest('/api/change-password/', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({
+      old_password: oldPassword,
+      new_password: newPassword,
+      confirm_password: confirmPassword,
+    }),
+  });
+}
+
 async function apiLogout() {
   const refresh = state.refresh || localStorage.getItem('ns_refresh');
   if (refresh) {
@@ -410,6 +482,51 @@ async function apiLoadAnswers() {
     }
   });
   state.quizComplete = !!data.is_complete;
+}
+
+async function apiLoadCounselorConversations() {
+  const data = await apiRequest(
+    '/api/counselor/conversations/',
+    { headers: authHeaders(false) },
+  );
+  state.counselorConversations = asList(data);
+  return state.counselorConversations;
+}
+
+async function apiCreateCounselorConversation() {
+  return apiRequest('/api/counselor/conversations/', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({}),
+  });
+}
+
+async function apiLoadCounselorMessages(conversationId) {
+  return apiRequest(
+    `/api/counselor/conversations/${conversationId}/messages/`,
+    { headers: authHeaders(false) },
+  );
+}
+
+async function apiSendCounselorMessage(conversationId, message) {
+  return apiRequest(
+    `/api/counselor/conversations/${conversationId}/messages/`,
+    {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ message }),
+    },
+  );
+}
+
+async function apiDeleteCounselorConversation(conversationId) {
+  return apiRequest(
+    `/api/counselor/conversations/${conversationId}/`,
+    {
+      method: 'DELETE',
+      headers: authHeaders(false),
+    },
+  );
 }
 
 async function restoreSession() {

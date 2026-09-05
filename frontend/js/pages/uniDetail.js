@@ -19,9 +19,15 @@ function pageUni() {
   ];
   return `<a class="back" onclick="nav('universities')">← Back to universities</a>
   <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
-    <div><h3>${esc(u.name)}</h3><p style="color:var(--muted);margin:0;">${esc(u.city)} · ${esc(u.sector)}</p></div>
+    <div class="uni-detail-hero">
+      <div class="uni-brand">${uniBrand(u)}</div>
+      <div>
+        <h3>${esc(u.name)}</h3>
+        <p style="color:var(--muted);margin:0;">${esc(u.city)} · ${esc(uniSectorLabel(u.sector)[0])}</p>
+      </div>
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      ${loggedIn()?`<button class="btn btn-outline" onclick="toggleBm('uni',${u.id})">${isBm('uni',u.id)?'♥ Saved':'♡ Save'}</button>`:''}
+      ${loggedIn()?`<button class="btn btn-outline" onclick="toggleBm('uni',${u.id})">${isBm('uni',u.id)?'Saved':'Save'}</button>`:''}
       ${extLink(u.website, 'Visit official website', true)}
       <button class="btn btn-outline btn-sm" onclick="addCompare(${u.id})">Compare</button>
     </div>

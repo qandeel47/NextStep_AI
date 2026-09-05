@@ -1,40 +1,103 @@
-/* ===== LANDING ===== */
 function pageLanding() {
-  return `<div class="shell">
-    <div class="hero-grid">
-      <div class="hero">
-        <h1>Find the Right<br>Career Path.<br>Build Your Future.</h1>
-        <p>AI-powered recommendations using your intermediate marks and interests — plus universities and scholarships for students in Pakistan.</p>
-        <div class="hero-actions">
+  const ctaPrimary = loggedIn()
+    ? `<button class="btn btn-primary lp-btn" onclick="nav('dashboard')">Go to Dashboard</button>`
+    : `<button class="btn btn-primary lp-btn" onclick="nav('register')">Get Started</button>`;
+  const ctaSecondary = loggedIn()
+    ? `<button class="btn lp-btn-ghost" onclick="nav('universities')">Explore Universities</button>`
+    : `<button class="btn lp-btn-ghost" onclick="nav('login')">Log In</button>`;
+
+  return `<div class="lp">
+    <section class="lp-hero">
+      <div class="lp-hero-bg" aria-hidden="true"></div>
+      <div class="lp-hero-glow" aria-hidden="true"></div>
+      <div class="lp-hero-grid shell">
+        <div class="lp-hero-copy lp-fade">
+          <h1>The right career starts with the right direction.</h1>
+          <p>Personalized guidance for Pakistani students — matched to your marks and interests, or browse universities and scholarships on your own.</p>
+          <div class="lp-hero-actions">${ctaPrimary}${ctaSecondary}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-section shell">
+      <div class="lp-section-head lp-reveal">
+        <h2>How NextStep AI works</h2>
+        <p>Start with personalized guidance, or jump straight into browsing. Your choice.</p>
+      </div>
+      <div class="lp-steps">
+        ${[
+          ['01', 'Build your profile', 'Add education level, stream and marks when you want ranked career matches.'],
+          ['02', 'Share your interests', 'A short questionnaire helps align careers with what you enjoy.'],
+          ['03', 'See clear matches', 'Weighted scoring across subjects, interests, education and market demand.'],
+          ['04', 'Explore freely', 'Universities, scholarships and career fields stay open either way.'],
+        ].map(([n, t, d]) => `
+          <article class="lp-step lp-reveal">
+            <span>${n}</span>
+            <h3>${t}</h3>
+            <p>${d}</p>
+          </article>`).join('')}
+      </div>
+    </section>
+
+    <section class="lp-section lp-section-soft">
+      <div class="shell">
+        <div class="lp-section-head lp-reveal">
+          <h2>Choose your starting point</h2>
+          <p>Pick what you need right now — guidance, exploration, or both.</p>
+        </div>
+        <div class="lp-paths lp-paths-visual">
+          ${[
+            ['questionnaire', 'img/lp-assessment.png', 'Assessment', 'Complete your profile and interests to unlock matches.'],
+            ['recommendations', 'img/lp-hero-student.png', 'Recommendation', 'See ranked career paths based on your assessment.'],
+            ['fields', 'img/lp-career.png', 'Career Fields', 'Browse fields, skills and pathways across Pakistan.'],
+            ['universities', 'img/lp-university.jpg', 'Universities', 'Search, filter and compare programs across Pakistan.'],
+            ['scholarships', 'img/lp-scholarship.png', 'Scholarships', 'Government schemes, deadlines and official apply links.'],
+          ].map(([page, img, t, d]) => `
+            <button type="button" class="lp-path lp-path-img lp-reveal" onclick="nav('${page}')">
+              <span class="lp-path-media"><img src="${img}" alt=""></span>
+              <span class="lp-path-body">
+                <h3>${t}</h3>
+                <p>${d}</p>
+                <span class="lp-path-go">Open →</span>
+              </span>
+            </button>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-cta-band">
+      <div class="shell lp-cta-inner lp-reveal">
+        <h2>Ready to find your direction?</h2>
+        <p>Create an account and start with assessment, universities, or scholarships.</p>
+        <div class="lp-hero-actions">
           ${loggedIn()
-            ? `<button class="btn btn-primary" onclick="nav('dashboard')">Go to Dashboard</button>
-               <button class="btn btn-outline" onclick="logout()">Log Out</button>`
-            : `<button class="btn btn-primary" onclick="nav('register')">Get Started</button>
-               <button class="btn btn-outline" onclick="nav('login')">Log In</button>`}
+            ? `<button class="btn btn-primary lp-btn" onclick="nav('dashboard')">Open Dashboard</button>`
+            : `<button class="btn btn-primary lp-btn" onclick="nav('register')">Get Started</button>
+               <button class="btn lp-btn-ghost" onclick="nav('login')">Log In</button>`}
         </div>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;">
-        <div style="width:180px;height:180px;border-radius:50%;background:linear-gradient(145deg,#DBEAFE,#EFF6FF);display:flex;align-items:center;justify-content:center;font-size:72px;border:4px solid #fff;box-shadow:var(--shadow-md);">👩‍🎓</div>
-        <div class="hero-card">
-          <p style="font-size:11.5px;color:var(--muted);">Example top match</p>
-          <h3 style="font-size:16px;">Software Engineering</h3>
-          <p style="color:var(--navy);font-weight:800;">92% Match</p>
-          <div style="font-size:13px;line-height:1.7;margin-top:8px;">✓ Subject marks aligned<br>✓ Interest tags matched<br>✓ High market demand</div>
-        </div>
-      </div>
-    </div>
-    <div class="stats-row">
-      ${[['50+','Academic Fields'],['200+','Universities'],['100+','Scholarships'],['AI','Weighted Matching']].map(([n,l])=>
-        `<div class="stat-box"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join('')}
-    </div>
-    <h2 style="text-align:center;margin-bottom:24px;font-size:22px;">How NextStep AI Works</h2>
-    <div class="steps">
-      ${[
-        ['01','Create Profile','Education (Matric / Inter / O / A Level), stream and obtained/total marks.'],
-        ['02','Answer 10 Questions','Every question is compulsory. Some allow 2–3 choices.'],
-        ['03','Get Recommendations','Subject 40% + Interest 35% + Education 15% + Market 10%.'],
-        ['04','Explore Opportunities','Universities and scholarships ranked for your top fields.']
-      ].map(([n,t,d])=>`<div class="step-card"><div class="step-num">${n}</div><h4 style="font-size:14.5px;margin-bottom:6px;">${t}</h4><p style="font-size:12.5px;color:var(--muted);margin:0;">${d}</p></div>`).join('')}
-    </div>
+    </section>
+
+    <footer class="lp-footer shell">
+      <p>Career guidance for students in Pakistan</p>
+    </footer>
   </div>`;
+}
+
+function bindLandingMotion() {
+  if (state.page !== 'landing') return;
+  const nodes = document.querySelectorAll('.lp-reveal');
+  if (!nodes.length) return;
+  if (!('IntersectionObserver' in window)) {
+    nodes.forEach((el) => el.classList.add('is-in'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-in');
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.18, rootMargin: '0px 0px -40px 0px' });
+  nodes.forEach((el) => io.observe(el));
 }

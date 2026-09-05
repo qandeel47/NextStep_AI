@@ -56,6 +56,7 @@ def _choice_error(question):
 )
 class QuestionnaireAnswersViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = SubmitAnswersSerializer
 
     def list(self, request):
         rows = UserAnswer.objects.filter(user=request.user).select_related('question', 'option')
@@ -93,29 +94,30 @@ class QuestionnaireAnswersViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        created = []
+        for item in payload:
+            question = by_id[item['question']]
+            option_ids = item['option_ids']
+            count = len(option_ids)
+            if count < question.min_select or count > question.max_select:
+                return Response(
+                    {'detail': _choice_error(question)},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            options = list(QuestionOption.objects.filter(
+                id__in=option_ids,
+                question=question,
+            ))
+            if len(options) != count:
+                return Response(
+                    {'detail': f'Invalid options for question {question.order}.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            for option in options:
+                created.append(UserAnswer(user=request.user, question=question, option=option))
+
         with transaction.atomic():
             UserAnswer.objects.filter(user=request.user).delete()
-            created = []
-            for item in payload:
-                question = by_id[item['question']]
-                option_ids = item['option_ids']
-                count = len(option_ids)
-                if count < question.min_select or count > question.max_select:
-                    return Response(
-                        {'detail': _choice_error(question)},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-                options = list(QuestionOption.objects.filter(
-                    id__in=option_ids,
-                    question=question,
-                ))
-                if len(options) != count:
-                    return Response(
-                        {'detail': f'Invalid options for question {question.order}.'},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-                for option in options:
-                    created.append(UserAnswer(user=request.user, question=question, option=option))
             UserAnswer.objects.bulk_create(created)
             QuestionnaireSubmission.objects.update_or_create(
                 user=request.user,

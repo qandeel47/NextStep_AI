@@ -163,24 +163,28 @@ class Command(BaseCommand):
     help = 'Seed the 10 recommendation questionnaire questions'
 
     def handle(self, *args, **options):
-        Question.objects.all().delete()
-        created = 0
+        seeded = 0
+        active_orders = []
         for item in QUESTIONS:
-            question = Question.objects.create(
-                text=item['text'],
-                question_type=item['question_type'],
-                hint=item['hint'],
+            active_orders.append(item['order'])
+            question, _ = Question.objects.update_or_create(
                 order=item['order'],
-                min_select=item['min_select'],
-                max_select=item['max_select'],
-                is_active=True,
+                defaults={
+                    'text': item['text'],
+                    'question_type': item['question_type'],
+                    'hint': item['hint'],
+                    'min_select': item['min_select'],
+                    'max_select': item['max_select'],
+                    'is_active': True,
+                },
             )
             for index, (label, tag) in enumerate(item['options'], start=1):
-                QuestionOption.objects.create(
+                QuestionOption.objects.update_or_create(
                     question=question,
-                    label=label,
-                    tag=tag,
                     order=index,
+                    defaults={'label': label, 'tag': tag},
                 )
-            created += 1
-        self.stdout.write(self.style.SUCCESS(f'Seeded {created} questions'))
+            seeded += 1
+
+        Question.objects.exclude(order__in=active_orders).update(is_active=False)
+        self.stdout.write(self.style.SUCCESS(f'Seeded {seeded} questions'))

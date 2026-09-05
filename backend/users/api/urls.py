@@ -10,5 +10,10 @@ router.register(r'me', viewsets.UserProfile, basename='me')
 router.register(r'logout', viewsets.Logout, basename='logout')
 
 urlpatterns = [
+    path(
+        'change-password/',
+        viewsets.UserProfile.as_view({'post': 'change_password'}),
+        name='change-password',
+    ),
     path('', include(router.urls)),
 ]

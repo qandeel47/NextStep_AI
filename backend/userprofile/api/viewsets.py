@@ -22,11 +22,18 @@ from .serializers import UserProfileSerializer
 )
 class AcademicProfileViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserProfileSerializer
 
     def list(self, request):
         profile = UserProfile.objects.filter(user=request.user).first()
         if not profile:
-            return Response({'level': '', 'background': '', 'marks': {}})
+            return Response({
+                'level': '',
+                'background': '',
+                'marks': {},
+                'profile_completed': False,
+                'updated_at': None,
+            })
         return Response(UserProfileSerializer(profile).data)
 
     def update(self, request, pk=None):

@@ -1,4 +1,3 @@
-/* ===== REGISTER ===== */
 async function doRegister(e) {
   e.preventDefault();
   const fullName = document.getElementById('reg-name')?.value || 'Student';
@@ -6,29 +5,26 @@ async function doRegister(e) {
   const password = document.getElementById('reg-password')?.value || '';
   try {
     await apiRegister({ fullName, email, password });
-    await loadAuthenticatedAppData();
-    toast('Account created — complete your academic profile', true);
-    nav('academic');
+    try { await loadAuthenticatedAppData(); } catch (e) { /* non-blocking */ }
+    toast('Account created — choose what you want to do next', true);
+    nav('dashboard');
   } catch (err) {
     toast(err.message || 'Registration failed');
   }
   return false;
 }
 function pageRegister() {
-  return `<div class="split">
-    <div class="auth-left">
-      <div class="brand" style="margin-bottom:28px;" onclick="nav('landing')"><div class="brand-logo">N</div><span class="brand-text">NextStep AI</span></div>
-      <h2 style="font-size:24px;margin-bottom:6px;">Create your account</h2>
-      <p style="color:var(--muted);margin-bottom:24px;">Start your personalized career journey.</p>
+  return `<div class="auth-page" style="background-image:linear-gradient(180deg,rgba(7,21,54,.35),rgba(11,31,77,.45)),url('img/auth-bg.png');background-size:cover;background-position:center;background-repeat:no-repeat;">
+    <div class="auth-card">
+      <h2>Create your account</h2>
+      <p class="auth-sub">Start with guidance, or explore universities and scholarships first.</p>
       <form onsubmit="return doRegister(event)">
-        <div class="field"><label>Full Name</label><input type="text" id="reg-name" required></div>
-        <div class="field"><label>Email Address</label><input type="email" id="reg-email" required></div>
-        <div class="field"><label>Password</label><input type="password" id="reg-password" required minlength="8"></div>
+        <div class="field"><label>Full Name</label><input type="text" id="reg-name" required placeholder="Your name"></div>
+        <div class="field"><label>Email Address</label><input type="email" id="reg-email" required placeholder="you@student.com"></div>
+        <div class="field"><label>Password</label><input type="password" id="reg-password" required minlength="8" placeholder="At least 8 characters"></div>
         <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
       </form>
-      <p style="margin-top:20px;font-size:13.5px;color:var(--muted);text-align:center;">Already have an account? <a onclick="nav('login')" style="color:var(--navy);font-weight:700;cursor:pointer;">Log in</a></p>
+      <p class="auth-switch">Already have an account? <a onclick="nav('login')">Log in</a></p>
     </div>
-    <div class="auth-right"><div class="auth-illust">🚀</div><h2>Join thousands of students</h2>
-      <p style="margin-top:12px;">Your intermediate marks + interests → field, university and scholarship matches.</p></div>
   </div>`;
 }

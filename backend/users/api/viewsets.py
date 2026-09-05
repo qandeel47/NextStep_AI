@@ -66,6 +66,7 @@ class UserLogin(viewsets.ViewSet):
 
 class UserProfile(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
 
     @extend_schema(tags=['Users'], summary='Get current user profile')
     def list(self, request):
@@ -78,7 +79,7 @@ class UserProfile(viewsets.ViewSet):
         request=ChangePasswordSerializer,
         responses={200: None},
     )
-    def create(self, request):
+    def change_password(self, request):
         serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -89,7 +90,7 @@ class UserProfile(viewsets.ViewSet):
 
 
 class Logout(viewsets.ViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         tags=['Users'],
@@ -99,8 +100,9 @@ class Logout(viewsets.ViewSet):
         responses={200: None},
     )
     def create(self, request):
-        serializer = LogoutSerializer(data=request.data)
+        serializer = LogoutSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(
             {'message': 'Logout successful.'},
             status=status.HTTP_200_OK,

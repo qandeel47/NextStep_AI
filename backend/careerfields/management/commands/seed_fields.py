@@ -2,6 +2,40 @@ from django.core.management.base import BaseCommand
 
 from careerfields.models import CareerField
 
+
+def catalogue_field(
+    name,
+    category,
+    subjects,
+    tags,
+    description,
+    learn,
+    skills,
+    careers,
+    backgrounds,
+    market=7,
+    future=8,
+    duration='4 Years',
+):
+    return {
+        'name': name,
+        'category': category,
+        'required_subjects': subjects,
+        'preferred_levels': ['Intermediate', 'A-Level'],
+        'interest_tags': tags,
+        'market': market,
+        'future': future,
+        'demand_label': 'High Demand' if market >= 8 else 'Growing Demand',
+        'duration': duration,
+        'short_desc': description,
+        'about': description,
+        'learn': learn,
+        'skills': skills,
+        'careers': careers,
+        'min_background': backgrounds,
+    }
+
+
 FIELDS = [
     {
         'name': 'Software Engineering',
@@ -32,7 +66,7 @@ FIELDS = [
         'min_background': ['Pre-Engineering', 'ICS'],
     },
     {
-        'name': 'Artificial Intelligence',
+        'name': 'Artificial Intelligence (AI)',
         'category': 'Computer Science',
         'required_subjects': ['Mathematics', 'Computer Science', 'Physics'],
         'preferred_levels': ['Intermediate', 'A-Level'],
@@ -46,7 +80,7 @@ FIELDS = [
         'min_background': ['Pre-Engineering', 'ICS'],
     },
     {
-        'name': 'Cyber Security',
+        'name': 'Cybersecurity',
         'category': 'Computer Science',
         'required_subjects': ['Mathematics', 'Computer Science'],
         'preferred_levels': ['Intermediate', 'A-Level'],
@@ -74,7 +108,7 @@ FIELDS = [
         'min_background': ['Commerce', 'Any'],
     },
     {
-        'name': 'Medicine (MBBS)',
+        'name': 'General Medicine',
         'category': 'Medical',
         'required_subjects': ['Biology', 'Chemistry', 'Physics'],
         'preferred_levels': ['Intermediate', 'A-Level'],
@@ -103,7 +137,7 @@ FIELDS = [
     },
     {
         'name': 'Psychology',
-        'category': 'Social Sciences',
+        'category': 'Medical',
         'required_subjects': ['English', 'Biology'],
         'preferred_levels': ['Intermediate', 'A-Level'],
         'interest_tags': ['helping-people', 'research', 'analyzing-data', 'social-sciences'],
@@ -117,11 +151,238 @@ FIELDS = [
     },
 ]
 
+FIELDS.extend([
+    catalogue_field(
+        'Surgery', 'Medical', ['Biology', 'Chemistry', 'Physics'],
+        ['medicine', 'biology', 'helping-people', 'detail', 'research'],
+        'Diagnose conditions and treat injuries or diseases through surgical procedures.',
+        ['Anatomy', 'Surgical Practice', 'Pathology', 'Patient Care'],
+        ['Precision', 'Decision Making', 'Stamina', 'Teamwork'],
+        ['General Surgeon', 'Specialist Surgeon', 'Surgical Resident'],
+        ['Pre-Medical'], market=8, future=8, duration='5+ Years',
+    ),
+    catalogue_field(
+        'Dentistry', 'Medical', ['Biology', 'Chemistry', 'Physics'],
+        ['medicine', 'biology', 'helping-people', 'detail'],
+        'Prevent, diagnose and treat oral and dental health conditions.',
+        ['Oral Anatomy', 'Dental Materials', 'Oral Surgery', 'Clinical Dentistry'],
+        ['Manual Dexterity', 'Precision', 'Communication'],
+        ['Dentist', 'Orthodontist', 'Dental Surgeon'],
+        ['Pre-Medical'], market=8, future=8, duration='4–5 Years',
+    ),
+    catalogue_field(
+        'Pharmacy', 'Medical', ['Chemistry', 'Biology'],
+        ['medicine', 'chemistry', 'research', 'detail'],
+        'Study medicines and support their safe development, preparation and use.',
+        ['Pharmacology', 'Medicinal Chemistry', 'Pharmaceutics', 'Clinical Pharmacy'],
+        ['Scientific Analysis', 'Accuracy', 'Patient Counseling'],
+        ['Pharmacist', 'Clinical Pharmacist', 'Pharmaceutical Researcher'],
+        ['Pre-Medical'], market=8, future=8, duration='5 Years',
+    ),
+    catalogue_field(
+        'Nursing', 'Medical', ['Biology', 'Chemistry'],
+        ['medicine', 'biology', 'helping-people', 'team'],
+        'Deliver direct patient care and support treatment and recovery.',
+        ['Patient Care', 'Anatomy', 'Community Health', 'Clinical Practice'],
+        ['Empathy', 'Communication', 'Clinical Judgment'],
+        ['Registered Nurse', 'Critical Care Nurse', 'Community Health Nurse'],
+        ['Pre-Medical'], market=9, future=9, duration='4 Years',
+    ),
+    catalogue_field(
+        'Physiotherapy', 'Medical', ['Biology', 'Physics'],
+        ['medicine', 'biology', 'helping-people', 'practical'],
+        'Help patients restore movement, strength and physical function.',
+        ['Anatomy', 'Kinesiology', 'Rehabilitation', 'Exercise Therapy'],
+        ['Patient Care', 'Observation', 'Physical Assessment'],
+        ['Physiotherapist', 'Sports Therapist', 'Rehabilitation Specialist'],
+        ['Pre-Medical'], market=8, future=9, duration='5 Years',
+    ),
+    catalogue_field(
+        'Radiology', 'Medical', ['Biology', 'Physics', 'Chemistry'],
+        ['medicine', 'technology', 'detail', 'research'],
+        'Use medical imaging to support diagnosis and treatment.',
+        ['Imaging Physics', 'Anatomy', 'Radiographic Techniques', 'Patient Safety'],
+        ['Technical Accuracy', 'Observation', 'Patient Care'],
+        ['Radiologist', 'Radiologic Technologist', 'Imaging Specialist'],
+        ['Pre-Medical'], market=8, future=9, duration='4–5 Years',
+    ),
+    catalogue_field(
+        'Nutrition & Dietetics', 'Medical', ['Biology', 'Chemistry'],
+        ['medicine', 'biology', 'helping-people', 'research'],
+        'Apply nutrition science to improve health and manage dietary needs.',
+        ['Human Nutrition', 'Biochemistry', 'Clinical Dietetics', 'Public Health'],
+        ['Counseling', 'Scientific Analysis', 'Planning'],
+        ['Dietitian', 'Clinical Nutritionist', 'Public Health Nutritionist'],
+        ['Pre-Medical', 'Any'], market=7, future=8,
+    ),
+    catalogue_field(
+        'Medical Laboratory Technology', 'Medical', ['Biology', 'Chemistry'],
+        ['medicine', 'biology', 'research', 'detail', 'technology'],
+        'Perform laboratory testing that supports medical diagnosis and treatment.',
+        ['Clinical Chemistry', 'Microbiology', 'Hematology', 'Laboratory Safety'],
+        ['Laboratory Technique', 'Accuracy', 'Data Analysis'],
+        ['Medical Lab Technologist', 'Microbiology Technologist', 'Lab Supervisor'],
+        ['Pre-Medical'], market=8, future=8, duration='4 Years',
+    ),
+    catalogue_field(
+        'Web Development', 'Computer Science', ['Computer Science', 'Mathematics'],
+        ['technology', 'computers', 'creating', 'problem-solving', 'cs-it-ai'],
+        'Build websites and browser-based applications for users and businesses.',
+        ['HTML & CSS', 'JavaScript', 'Backend Development', 'Databases'],
+        ['Programming', 'UI Implementation', 'Problem Solving'],
+        ['Frontend Developer', 'Backend Developer', 'Full Stack Developer'],
+        ['ICS', 'Pre-Engineering', 'Any'], market=9, future=9,
+    ),
+    catalogue_field(
+        'Mobile App Development', 'Computer Science', ['Computer Science', 'Mathematics'],
+        ['technology', 'computers', 'creating', 'innovation', 'cs-it-ai'],
+        'Create applications for Android, iOS and cross-platform devices.',
+        ['Mobile Programming', 'UI Design', 'APIs', 'App Architecture'],
+        ['Programming', 'Product Thinking', 'Testing'],
+        ['Android Developer', 'iOS Developer', 'Cross-platform Developer'],
+        ['ICS', 'Pre-Engineering', 'Any'], market=8, future=9,
+    ),
+    catalogue_field(
+        'Cloud Computing', 'Computer Science', ['Computer Science', 'Mathematics'],
+        ['technology', 'computers', 'problem-solving', 'detail', 'cs-it-ai'],
+        'Design, deploy and operate scalable systems on cloud platforms.',
+        ['Cloud Architecture', 'Networking', 'Linux', 'DevOps'],
+        ['System Administration', 'Automation', 'Security'],
+        ['Cloud Engineer', 'DevOps Engineer', 'Solutions Architect'],
+        ['ICS', 'Pre-Engineering'], market=9, future=10,
+    ),
+    catalogue_field(
+        'Game Development', 'Computer Science', ['Computer Science', 'Mathematics', 'Physics'],
+        ['technology', 'computers', 'creating', 'innovation', 'cs-it-ai'],
+        'Combine programming, design and storytelling to create interactive games.',
+        ['Game Engines', 'Programming', 'Computer Graphics', 'Game Design'],
+        ['Programming', 'Creativity', '3D Thinking'],
+        ['Game Developer', 'Gameplay Programmer', 'Technical Designer'],
+        ['ICS', 'Pre-Engineering', 'Any'], market=7, future=8,
+    ),
+    catalogue_field(
+        'Marketing', 'Business', ['English', 'Economics'],
+        ['business', 'creating', 'communication', 'analyzing-data', 'office'],
+        'Understand customers and promote products, services and brands.',
+        ['Consumer Behavior', 'Digital Marketing', 'Brand Management', 'Market Research'],
+        ['Communication', 'Creativity', 'Analytics'],
+        ['Marketing Executive', 'Brand Manager', 'Digital Marketer'],
+        ['Commerce', 'Arts / Humanities', 'Any'], market=8, future=8,
+    ),
+    catalogue_field(
+        'Finance', 'Business', ['Accounting', 'Mathematics', 'Economics'],
+        ['business', 'commerce', 'analyzing-data', 'detail', 'high-salary'],
+        'Manage money, investments, risk and financial decision-making.',
+        ['Corporate Finance', 'Investment Analysis', 'Economics', 'Risk Management'],
+        ['Financial Analysis', 'Numeracy', 'Decision Making'],
+        ['Financial Analyst', 'Investment Analyst', 'Banking Officer'],
+        ['Commerce', 'ICS', 'Any'], market=8, future=8,
+    ),
+    catalogue_field(
+        'Accounting', 'Business', ['Accounting', 'Mathematics', 'Economics'],
+        ['business', 'commerce', 'analyzing-data', 'detail', 'office'],
+        'Record, audit and interpret financial information for organizations.',
+        ['Financial Accounting', 'Audit', 'Taxation', 'Business Law'],
+        ['Accuracy', 'Numeracy', 'Ethics'],
+        ['Accountant', 'Auditor', 'Tax Consultant'],
+        ['Commerce', 'ICS', 'Any'], market=8, future=7,
+    ),
+    catalogue_field(
+        'Human Resource Management', 'Business', ['English', 'Economics'],
+        ['business', 'helping-people', 'communication', 'leading', 'office'],
+        'Support hiring, development, performance and workplace culture.',
+        ['Recruitment', 'Organizational Behavior', 'Labor Law', 'Training'],
+        ['Communication', 'Empathy', 'Conflict Resolution'],
+        ['HR Officer', 'Recruiter', 'Learning and Development Specialist'],
+        ['Commerce', 'Arts / Humanities', 'Any'], market=7, future=8,
+    ),
+    catalogue_field(
+        'Entrepreneurship', 'Business', ['Accounting', 'English', 'Economics'],
+        ['business', 'entrepreneur', 'leading', 'innovation', 'high-salary'],
+        'Develop ideas into sustainable businesses and manage growth and risk.',
+        ['Business Models', 'Startup Finance', 'Marketing', 'Operations'],
+        ['Leadership', 'Resilience', 'Sales'],
+        ['Entrepreneur', 'Startup Founder', 'Business Development Manager'],
+        ['Commerce', 'ICS', 'Arts / Humanities', 'Any'], market=7, future=9,
+    ),
+    catalogue_field(
+        'Law', 'Social Sciences', ['English'],
+        ['social-sciences', 'languages', 'helping-people', 'research', 'detail'],
+        'Study legal systems and represent, advise or protect people and organizations.',
+        ['Constitutional Law', 'Criminal Law', 'Legal Research', 'Civil Procedure'],
+        ['Reasoning', 'Writing', 'Advocacy'],
+        ['Lawyer', 'Legal Advisor', 'Public Prosecutor'],
+        ['Arts / Humanities', 'Commerce', 'Any'], market=7, future=7, duration='5 Years',
+    ),
+    catalogue_field(
+        'Fine Arts', 'Design', ['English'],
+        ['creating', 'design', 'innovation', 'independent'],
+        'Develop artistic practice through drawing, painting, sculpture and visual expression.',
+        ['Drawing', 'Painting', 'Art History', 'Studio Practice'],
+        ['Creativity', 'Visual Thinking', 'Craftsmanship'],
+        ['Visual Artist', 'Art Instructor', 'Gallery Professional'],
+        ['Arts / Humanities', 'Any'], market=6, future=7,
+    ),
+    catalogue_field(
+        'Graphic Design', 'Design', ['Computer Science', 'English'],
+        ['creating', 'design', 'technology', 'innovation'],
+        'Communicate ideas visually through branding, digital media and typography.',
+        ['Typography', 'Branding', 'Digital Design', 'User Interface Design'],
+        ['Creativity', 'Visual Communication', 'Design Software'],
+        ['Graphic Designer', 'Brand Designer', 'UI Designer'],
+        ['Arts / Humanities', 'ICS', 'Any'], market=8, future=8,
+    ),
+    catalogue_field(
+        'Media & Communication', 'Social Sciences', ['English'],
+        ['social-sciences', 'languages', 'creating', 'communication', 'team'],
+        'Create and analyze content for journalism, broadcasting and digital media.',
+        ['Journalism', 'Digital Media', 'Public Relations', 'Media Studies'],
+        ['Writing', 'Presentation', 'Storytelling'],
+        ['Journalist', 'Content Producer', 'Public Relations Officer'],
+        ['Arts / Humanities', 'Commerce', 'Any'], market=7, future=8,
+    ),
+    catalogue_field(
+        'International Relations', 'Social Sciences', ['English', 'Economics'],
+        ['social-sciences', 'languages', 'research', 'helping-people'],
+        'Study global politics, diplomacy, security and relations between countries.',
+        ['International Politics', 'Diplomacy', 'Foreign Policy', 'Research Methods'],
+        ['Research', 'Analysis', 'Communication'],
+        ['Diplomatic Service Officer', 'Policy Analyst', 'Development Professional'],
+        ['Arts / Humanities', 'Commerce', 'Any'], market=6, future=7,
+    ),
+    catalogue_field(
+        'Education', 'Social Sciences', ['English'],
+        ['helping-people', 'social-sciences', 'languages', 'leading'],
+        'Support learning through teaching, curriculum design and educational leadership.',
+        ['Teaching Methods', 'Educational Psychology', 'Curriculum', 'Assessment'],
+        ['Communication', 'Empathy', 'Planning'],
+        ['Teacher', 'Education Coordinator', 'Curriculum Developer'],
+        ['Arts / Humanities', 'Any'], market=8, future=8,
+    ),
+])
+
+
+LEGACY_FIELD_NAMES = {
+    'Artificial Intelligence': 'Artificial Intelligence (AI)',
+    'Cyber Security': 'Cybersecurity',
+    'Medicine (MBBS)': 'General Medicine',
+}
+
 
 class Command(BaseCommand):
     help = 'Seed career fields used by the recommendation engine'
 
     def handle(self, *args, **options):
+        for old_name, new_name in LEGACY_FIELD_NAMES.items():
+            old = CareerField.objects.filter(name=old_name).first()
+            if not old:
+                continue
+            if CareerField.objects.filter(name=new_name).exists():
+                old.delete()
+            else:
+                old.name = new_name
+                old.save(update_fields=['name'])
+
         created = 0
         updated = 0
         for row in FIELDS:
