@@ -32,7 +32,7 @@ function openAiChat() {
 }
 
 function aiChatIcon(cls) {
-  return `<img class="${cls || 'ai-chat-icon'}" src="img/chatbot-logo.png?v=chatmd1" alt="ChatBot">`;
+  return `<img class="${cls || 'ai-chat-icon'}" src="img/chatbot-logo.png?v=chatlogo2" alt="ChatBot">`;
 }
 
 function hasGuidanceData() {
