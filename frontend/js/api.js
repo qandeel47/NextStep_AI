@@ -212,9 +212,16 @@ function mapApiField(f) {
     duration: f.duration,
     desc: f.desc,
     about: f.about,
+    marketOutlook: f.marketOutlook || '',
+    futureOutlook: f.futureOutlook || '',
+    fieldValue: f.fieldValue || '',
     learn: f.learn || [],
     skills: f.skills || [],
     careers: f.careers || [],
+    jobTypes: f.jobTypes || [],
+    opportunities: f.opportunities || [],
+    risks: f.risks || [],
+    studyRoadmap: f.studyRoadmap || [],
     minBackground: f.minBackground || [],
     scores: f.scores,
     match: f.match,
@@ -267,17 +274,62 @@ function inferProvince(city, province) {
 function fieldIdsFromPrograms(programsText) {
   const text = String(programsText || '').toLowerCase();
   if (!text) return [];
+  const aliases = {
+    'general medicine': ['general medicine', 'mbbs', 'medicine'],
+    'dentistry': ['dentistry', 'bds', 'dental'],
+    'business administration': ['business administration', 'bba', 'business', 'management science', 'management & technology'],
+    'computer science': ['computer science', 'bs computer science', 'computing'],
+    'software engineering': ['software engineering', 'bs software engineering'],
+    'artificial intelligence (ai)': ['artificial intelligence', 'ai)', 'bs artificial intelligence'],
+    'data science': ['data science', 'bs data science'],
+    'electrical engineering': ['electrical engineering', 'electrical'],
+    'pharmacy': ['pharmacy', 'pharm'],
+    'nursing': ['nursing'],
+    'physiotherapy': ['physiotherapy', 'physical therapy', 'dpt', 'doctor of physical therapy'],
+    'law': ['law', 'llb'],
+    'psychology': ['psychology'],
+    'accounting': ['accounting', 'acca'],
+    'finance': ['finance'],
+    'marketing': ['marketing'],
+    'media & communication': ['media & communication', 'mass communication', 'journalism', 'media'],
+    'graphic design': ['graphic design'],
+    'fine arts': ['fine arts'],
+    'education': ['education'],
+    'international relations': ['international relations'],
+    'cybersecurity': ['cybersecurity', 'cyber security'],
+    'medical laboratory technology': ['medical laboratory', 'allied health'],
+    'radiology': ['radiology', 'imaging'],
+    'nutrition & dietetics': ['nutrition', 'dietetics'],
+    'human resource management': ['human resource', 'hrm'],
+    'web development': ['web development'],
+    'mobile app development': ['mobile app'],
+    'cloud computing': ['cloud computing'],
+    'game development': ['game development'],
+    'entrepreneurship': ['entrepreneurship'],
+    'surgery': ['surgery'],
+  };
   return FIELDS.filter((f) => {
     const name = (f.name || '').toLowerCase();
     const cat = (f.category || '').toLowerCase();
-    return (name && text.includes(name)) || (cat && text.includes(cat));
+    if (name && text.includes(name)) return true;
+    if (cat && text.includes(cat)) return true;
+    const keys = aliases[name] || [];
+    return keys.some((k) => text.includes(k));
   }).map((f) => f.id);
+}
+
+function splitProgramNames(programsText) {
+  return String(programsText || '')
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean);
 }
 
 function mapApiUniversity(u) {
   const programsText = u.programs || '';
-  const programNames = programsText.split(',').map((p) => p.trim()).filter(Boolean);
+  const programNames = splitProgramNames(programsText);
   const website = u.website || '';
+  const aboutParts = [u.about, u.admission_criteria, u.merit_formula].filter(Boolean);
   return {
     id: u.id,
     name: u.name,
@@ -289,7 +341,12 @@ function mapApiUniversity(u) {
     cityName: u.city || '',
     students: '—',
     website,
-    about: u.admission_criteria || u.merit_formula || '',
+    about: u.about || u.admission_criteria || u.merit_formula || '',
+    knownFor: u.known_for || '',
+    bestFor: u.best_for || '',
+    admissionCriteria: u.admission_criteria || '',
+    meritFormula: u.merit_formula || '',
+    aboutParts,
     programs: programNames.map((name) => ({ name, fieldIds: fieldIdsFromPrograms(name) })),
     fieldIds: fieldIdsFromPrograms(programsText),
     scholarships: u.scholarships || '',

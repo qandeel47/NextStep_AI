@@ -157,6 +157,41 @@ SCHOLARSHIPS = [
         'source_url': 'https://honhaarscholarship.punjabhec.gov.pk',
         'min_marks': None,
     },
+    {
+        'name': 'PWWF Talent Scholarship (Labour Quota)',
+        'provider': 'Punjab Workers Welfare Fund (PWWF)',
+        'website': 'https://pwwf.punjab.gov.pk/scholarship',
+        'education_level': 'Intermediate / Undergraduate / Professional',
+        'province': 'Punjab',
+        'field_of_study': 'Any HEC-recognized program (including professional degrees where approved)',
+        'eligibility': (
+            'Child (or worker) of a registered industrial/mining worker under Punjab Industrial Relations Act 2010; '
+            'worker registered with EOBI or Social Security with generally at least 3 years accumulative service '
+            '(service limit may not apply for intermediate-level education); '
+            'typically minimum 80% marks in Matric / IBCC equivalent; '
+            'admission/enrollment in a recognized institution in Punjab. '
+            'Children of deceased/disabled workers may also qualify if documented as per PWWF rules.'
+        ),
+        'coverage': (
+            'Educational expenses such as admission, tuition, registration, exam, library/computer/lab fees; '
+            'hostel/mess and transport may be covered as per category; plus fixed stipend bands by education level '
+            '(confirm current rates on the PWWF portal). Many partner universities also list a PWWF labour quota / 100% fee pathway.'
+        ),
+        'required_documents': (
+            'Worker CNIC, social security / EOBI proof, factory appointment & registration documents, '
+            'student B-form/CNIC, NADRA family registration, matric marksheet (80%+), admission/enrollment proof, '
+            'and other documents listed in the current PWWF advertisement.'
+        ),
+        'application_deadline': 'As announced on the PWWF scholarship portal / advertisement',
+        'application_process': (
+            'Apply through the official PWWF scholarship process (portal/advertisement at '
+            'https://pwwf.punjab.gov.pk/scholarship). After university admission on merit where required, '
+            'submit verification documents to the institution and PWWF as instructed.'
+        ),
+        'contact': 'https://pwwf.punjab.gov.pk',
+        'source_url': 'https://pwwf.punjab.gov.pk/scholarship',
+        'min_marks': 80,
+    },
 ]
 
 

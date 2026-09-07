@@ -26,6 +26,7 @@ const state = {
   uniView: 'list',
   uniHow: false,
   scholarQuery: '',
+  fieldQuery: '',
   scholarLevel: 'All',
   scholarRegion: 'All',
   scholarMarks: 'All',

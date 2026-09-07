@@ -68,6 +68,7 @@ function pageDashboard() {
   const nextSteps = [
     ['academic', 'academic', 'Complete academic profile', 'Add level, background and marks for better matches.', state.academic.level && filledMarksCount() >= 2, 'Continue', 'Review'],
     ['questionnaire', 'quiz', 'Finish the questionnaire', 'Your interests power career match scores.', state.quizComplete, 'Continue', 'Review'],
+    ['aggregate', 'calculator', 'Calculate your aggregate', 'Estimate NUST, UET, medical or custom merit aggregates.', false, 'Open', 'Open'],
     ['universities', 'unis', 'Explore universities', 'Search, filter and save programs you like.', savedUnis.length > 0, 'Browse', 'Check'],
     ['scholarships', 'scholarships', 'Check scholarships', 'See government schemes that fit your profile.', savedSchols.length > 0, 'Browse', 'Check'],
   ];
