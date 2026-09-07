@@ -216,8 +216,8 @@ function pageCounselor() {
   const messages = state.counselorMessages;
   const suggestions = [
     'What careers match my marks and interests?',
-    'Mere top career ke liye step-by-step roadmap banao.',
-    'Which universities and scholarships fit my profile?',
+    'Mere top career ka 5-step roadmap explain karo.',
+    'Which universities fit my profile, and what entry test do I need?',
   ];
 
   return `<div class="counselor-layout">
