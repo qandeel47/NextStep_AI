@@ -66,7 +66,8 @@ function scholBrand(s) {
   if (/cmeef|khyber pakhtunkhwa/.test(p)) return { letters: 'KPK', color: '#0b6799', img: 'img/schols/kpk.png' };
   if (/fee reimbursement|prime minister/.test(p)) return { letters: 'HEC', color: '#0b6799', img: 'img/schols/hec.png' };
   if (/hec/.test(p)) return { letters: 'HEC', color: '#0b6799', img: 'img/schols/hec.png' };
-  if (/peef/.test(p)) return { letters: 'PEEF', color: '#0b6799', img: '' };
+  if (/pwwf|workers welfare|labour quota|labor quota/i.test(p)) return { letters: 'PWWF', color: '#0b6799', img: 'img/schols/pwwf.png' };
+  if (/peef/.test(p)) return { letters: 'PEEF', color: '#0b6799', img: 'img/schols/peef.png' };
   const letters = String(s.provider || 'G').split(/\s+/).map((w) => w[0]).join('').slice(0, 3).toUpperCase();
   return { letters: letters || 'G', color: '#0b6799', img: '' };
 }
@@ -90,6 +91,8 @@ function scholPartnerLogosHtml(s) {
     ['img/schols/sindh.png', 'Sindh'],
     ['img/schols/kpk.png', 'Khyber Pakhtunkhwa'],
     ['img/schols/honhaar.png', 'Honhaar'],
+    ['img/schols/peef.png', 'PEEF'],
+    ['img/schols/pwwf.png', 'PWWF'],
   ];
   return `<div class="schol-partners">
     <p class="schol-partners-label">Official logos</p>

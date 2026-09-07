@@ -13,9 +13,16 @@ class CareerField(models.Model):
     duration = models.CharField(max_length=50, blank=True)
     short_desc = models.TextField(blank=True)
     about = models.TextField(blank=True)
+    market_outlook = models.TextField(blank=True)
+    future_outlook = models.TextField(blank=True)
+    field_value = models.TextField(blank=True)
     learn = models.JSONField(default=list, blank=True)
     skills = models.JSONField(default=list, blank=True)
     careers = models.JSONField(default=list, blank=True)
+    job_types = models.JSONField(default=list, blank=True)
+    opportunities = models.JSONField(default=list, blank=True)
+    risks = models.JSONField(default=list, blank=True)
+    study_roadmap = models.JSONField(default=list, blank=True)
     min_background = models.JSONField(default=list, blank=True)
 
     class Meta:

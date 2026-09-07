@@ -3,6 +3,7 @@ from datetime import date
 from django.core.management.base import BaseCommand
 
 from universities.models import University
+from universities.university_enrichment import NEW_UNIVERSITIES, apply_university_enrichment
 
 UNIVERSITIES = [
     {
@@ -490,7 +491,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         created = 0
         updated = 0
-        for row in UNIVERSITIES:
+        rows = [apply_university_enrichment(row) for row in UNIVERSITIES]
+        rows += [apply_university_enrichment(row) for row in NEW_UNIVERSITIES]
+        for row in rows:
             _, was_created = University.objects.update_or_create(
                 name=row['name'],
                 defaults=row,

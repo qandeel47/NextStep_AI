@@ -12,11 +12,15 @@ function pageUni() {
   const rows = [
     ['Location', u.city],
     ['Sector', u.sector],
+    ['Best for', u.bestFor || '—'],
     ['Entry Test', u.entry],
     ['Intake', u.intake],
     ['Contact', u.contact],
     ['Official website', u.website || '—'],
   ];
+  const programChips = (u.programs || []).map((p) =>
+    `<span class="tag uni-program-tag">${esc(p.name)}</span>`).join('');
+
   return `<a class="back" onclick="nav('universities')">← Back to universities</a>
   <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
     <div class="uni-detail-hero">
@@ -24,6 +28,7 @@ function pageUni() {
       <div>
         <h3>${esc(u.name)}</h3>
         <p style="color:var(--muted);margin:0;">${esc(u.city)} · ${esc(uniSectorLabel(u.sector)[0])}</p>
+        ${u.bestFor ? `<span class="badge badge-navy" style="margin-top:8px;display:inline-block;">Best for: ${esc(u.bestFor)}</span>` : ''}
       </div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -34,11 +39,16 @@ function pageUni() {
   </div>
   <div class="grid g3">
     <div class="card col-2">
-      <h4>About / admission</h4>
-      <p style="color:var(--muted);">${esc(u.about) || 'No admission notes saved.'}</p>
-      <h4 style="margin-top:16px;">Programs</h4>
-      ${(u.programs||[]).length ? (u.programs||[]).map(p=>`<p style="font-size:13.5px;">• ${esc(p.name)}</p>`).join('') : '<p style="color:var(--muted);">No program list saved.</p>'}
-      ${u.scholarships ? `<h4 style="margin-top:16px;">Scholarships mentioned by this university</h4><p style="color:var(--muted);">${esc(u.scholarships)}</p>
+      <h4>About this university</h4>
+      <p style="color:var(--muted);line-height:1.55;">${esc(u.about) || 'No university overview saved yet.'}</p>
+      ${u.knownFor ? `<h4 style="margin-top:16px;">Known for</h4><p style="color:var(--muted);line-height:1.55;">${esc(u.knownFor)}</p>` : ''}
+      <h4 style="margin-top:16px;">Degrees & programs</h4>
+      <div class="uni-program-wrap">${programChips || '<p style="color:var(--muted);">No program list saved.</p>'}</div>
+      ${u.admissionCriteria ? `<h4 style="margin-top:16px;">Admission criteria</h4><p style="color:var(--muted);line-height:1.55;">${esc(u.admissionCriteria)}</p>` : ''}
+      ${u.meritFormula ? `<h4 style="margin-top:16px;">Merit formula</h4><p style="color:var(--muted);line-height:1.55;">${esc(u.meritFormula)}</p>` : ''}
+      ${u.scholarships ? `<h4 style="margin-top:16px;">University scholarships</h4>
+        <p style="color:var(--muted);line-height:1.55;">${esc(u.scholarships)}</p>
+        <p class="helper" style="margin-top:8px;">Merit awards usually depend on your marks / CGPA. Confirm current brackets on the university website.</p>
         <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="nav('scholarships')">Browse government scholarships</button>` : ''}
     </div>
     <div class="card">

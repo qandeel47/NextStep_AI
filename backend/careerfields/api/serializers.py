@@ -10,6 +10,11 @@ class CareerFieldSerializer(serializers.ModelSerializer):
     demandLabel = serializers.CharField(source='demand_label', read_only=True)
     desc = serializers.CharField(source='short_desc', read_only=True)
     minBackground = serializers.ListField(source='min_background', read_only=True)
+    marketOutlook = serializers.CharField(source='market_outlook', read_only=True)
+    futureOutlook = serializers.CharField(source='future_outlook', read_only=True)
+    fieldValue = serializers.CharField(source='field_value', read_only=True)
+    jobTypes = serializers.ListField(source='job_types', read_only=True)
+    studyRoadmap = serializers.ListField(source='study_roadmap', read_only=True)
 
     class Meta:
         model = CareerField
@@ -26,8 +31,15 @@ class CareerFieldSerializer(serializers.ModelSerializer):
             'duration',
             'desc',
             'about',
+            'marketOutlook',
+            'futureOutlook',
+            'fieldValue',
             'learn',
             'skills',
             'careers',
+            'jobTypes',
+            'opportunities',
+            'risks',
+            'studyRoadmap',
             'minBackground',
         ]

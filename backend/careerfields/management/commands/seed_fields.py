@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from careerfields.field_insights import apply_insights
 from careerfields.models import CareerField
 
 
@@ -29,9 +30,16 @@ def catalogue_field(
         'duration': duration,
         'short_desc': description,
         'about': description,
+        'market_outlook': '',
+        'future_outlook': '',
+        'field_value': '',
         'learn': learn,
         'skills': skills,
         'careers': careers,
+        'job_types': [],
+        'opportunities': [],
+        'risks': [],
+        'study_roadmap': [],
         'min_background': backgrounds,
     }
 
@@ -359,6 +367,60 @@ FIELDS.extend([
         ['Teacher', 'Education Coordinator', 'Curriculum Developer'],
         ['Arts / Humanities', 'Any'], market=8, future=8,
     ),
+    catalogue_field(
+        'Civil Engineering', 'Engineering', ['Mathematics', 'Physics', 'Chemistry'],
+        ['engineering', 'problem-solving', 'creating', 'detail', 'practical'],
+        'Design, build and maintain infrastructure such as buildings, roads, bridges and water systems.',
+        ['Structural Analysis', 'Surveying', 'Geotechnical Engineering', 'Construction Management'],
+        ['Technical Drawing', 'Site Management', 'Problem Solving', 'Safety Awareness'],
+        ['Site Engineer', 'Structural Engineer', 'Project Engineer', 'Quantity Surveyor'],
+        ['Pre-Engineering'], market=8, future=8,
+    ),
+    catalogue_field(
+        'Mechanical Engineering', 'Engineering', ['Mathematics', 'Physics', 'Chemistry'],
+        ['engineering', 'problem-solving', 'creating', 'technology', 'practical'],
+        'Design and improve mechanical systems used in manufacturing, energy, transport and industry.',
+        ['Thermodynamics', 'Machine Design', 'Manufacturing', 'CAD / Solid Mechanics'],
+        ['CAD', 'Analytical Thinking', 'Workshop Skills', 'Teamwork'],
+        ['Mechanical Engineer', 'HVAC Engineer', 'Manufacturing Engineer', 'Maintenance Engineer'],
+        ['Pre-Engineering'], market=8, future=8,
+    ),
+    catalogue_field(
+        'Architecture', 'Design', ['Mathematics', 'Physics', 'English'],
+        ['creating', 'design', 'innovation', 'detail', 'practical'],
+        'Plan and design buildings and spaces that balance function, safety, aesthetics and context.',
+        ['Architectural Design', 'Building Materials', 'History of Architecture', 'Studio Practice'],
+        ['Design Thinking', 'Drawing', 'Spatial Reasoning', 'Communication'],
+        ['Architect', 'Architectural Assistant', 'Urban Design Junior', 'Interior Architecture roles'],
+        ['Pre-Engineering', 'Arts / Humanities', 'Any'], market=7, future=8, duration='5 Years',
+    ),
+    catalogue_field(
+        'Biotechnology', 'Medical', ['Biology', 'Chemistry'],
+        ['biology', 'research', 'medicine', 'technology', 'detail'],
+        'Use biological systems and lab science for healthcare, agriculture, industry and research applications.',
+        ['Cell Biology', 'Genetics', 'Bioprocess Technology', 'Laboratory Methods'],
+        ['Lab Technique', 'Scientific Analysis', 'Research Writing', 'Attention to Detail'],
+        ['Biotech Lab Technologist', 'Research Assistant', 'QA Officer', 'Agri-biotech roles'],
+        ['Pre-Medical', 'Pre-Engineering'], market=7, future=9,
+    ),
+    catalogue_field(
+        'Economics', 'Social Sciences', ['Mathematics', 'Economics', 'English'],
+        ['analyzing-data', 'research', 'business', 'social-sciences', 'high-salary'],
+        'Study how societies allocate resources and use data to understand markets, policy and development.',
+        ['Microeconomics', 'Macroeconomics', 'Econometrics', 'Development Economics'],
+        ['Quantitative Reasoning', 'Writing', 'Data Analysis', 'Critical Thinking'],
+        ['Economic Analyst', 'Research Associate', 'Policy Analyst', 'Banking Analyst'],
+        ['Commerce', 'ICS', 'Arts / Humanities', 'Any'], market=7, future=8,
+    ),
+    catalogue_field(
+        'Computer Science', 'Computer Science', ['Mathematics', 'Computer Science', 'Physics'],
+        ['technology', 'computers', 'problem-solving', 'innovation', 'cs-it-ai', 'analyzing-data'],
+        'Study computing fundamentals—programming, algorithms, systems and software—to build digital solutions across industries.',
+        ['Programming & Algorithms', 'Data Structures', 'Operating Systems', 'Databases', 'Computer Networks'],
+        ['Programming', 'Problem Solving', 'Analytical Thinking', 'System Design'],
+        ['Software Developer', 'Systems Analyst', 'Backend Engineer', 'Research / Computing roles'],
+        ['Pre-Engineering', 'ICS'], market=9, future=9,
+    ),
 ])
 
 
@@ -386,9 +448,10 @@ class Command(BaseCommand):
         created = 0
         updated = 0
         for row in FIELDS:
+            payload = apply_insights(dict(row))
             _, was_created = CareerField.objects.update_or_create(
-                name=row['name'],
-                defaults=row,
+                name=payload['name'],
+                defaults=payload,
             )
             created += int(was_created)
             updated += int(not was_created)

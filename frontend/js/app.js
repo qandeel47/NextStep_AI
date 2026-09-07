@@ -28,7 +28,7 @@ function render() {
     html = `<div class="${shellClass}">
       <div class="sidebar-backdrop" onclick="toggleMobileNav(false)"></div>
       ${sidebar()}
-      <div class="app-main">${topbarFor()}<div class="app-content${state.page==='dashboard'?' dash-content':''}${state.page==='academic'?' academic-content':''}${state.page==='questionnaire'?' quiz-content':''}${state.page==='recommendations'?' recs-content':''}${state.page==='universities'?' unis-content':''}${state.page==='scholarships'?' schols-content':''}${state.page==='counselor'?' counselor-content':''}">${pageHeading()}${content()}</div></div>
+      <div class="app-main">${topbarFor()}<div class="app-content${state.page==='dashboard'?' dash-content':''}${state.page==='academic'?' academic-content':''}${state.page==='questionnaire'?' quiz-content':''}${state.page==='recommendations'?' recs-content':''}${state.page==='aggregate'?' agg-content':''}${state.page==='universities'?' unis-content':''}${state.page==='scholarships'?' schols-content':''}${state.page==='counselor'?' counselor-content':''}">${pageHeading()}${content()}</div></div>
     </div>`;
     if (state.page !== 'academic' && state.page !== 'counselor') {
       html += `<button class="ai-launcher" type="button" onclick="openAiChat()" title="Chat with AI" aria-label="Open AI chat">
@@ -41,6 +41,7 @@ function render() {
   document.getElementById('root').innerHTML = html;
   if (typeof restoreUnisSearchFocus === 'function') restoreUnisSearchFocus();
   if (typeof restoreScholSearchFocus === 'function') restoreScholSearchFocus();
+  if (typeof restoreFieldSearchFocus === 'function') restoreFieldSearchFocus();
   if (typeof bindLandingMotion === 'function') bindLandingMotion();
   if (state.userMenuOpen || state.notifOpen) {
     setTimeout(() => document.addEventListener('click', closeChromeMenus, { once: true }), 0);
@@ -55,6 +56,7 @@ function content() {
     case 'academic': return pageAcademic();
     case 'questionnaire': return pageQuiz();
     case 'recommendations': return pageRecs();
+    case 'aggregate': return pageAggregate();
     case 'counselor': return pageCounselor();
     case 'fieldDetail': return pageField();
     case 'fields': return pageFields();

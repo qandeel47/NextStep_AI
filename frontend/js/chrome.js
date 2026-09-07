@@ -12,6 +12,7 @@ function navIcon(name) {
     fields: '<path d="M5 5h6v6H5zM13 5h6v6h-6zM5 13h6v6H5zM13 13h6v6h-6z"/>',
     unis: '<path d="M4 10 12 5l8 5v9H4z"/><path d="M12 10v9"/>',
     education: '<path d="M4 17V8l8-4 8 4v9"/><path d="M8 12v5c2 1.6 8 1.6 8 0v-5"/>',
+    calculator: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h1M8 15h2M12 15h2M16 15h1M8 18h2M12 18h2"/>',
     scholarships: '<path d="M12 3.8 20 8v3c0 4.6-3.4 7.6-8 8.7C7.4 18.6 4 15.6 4 11V8z"/>',
     compare: '<path d="M7 5v14M17 5v14M4 9h6M14 15h6"/>',
     saved: '<path d="M12 19.4 5.2 13A4.3 4.3 0 0 1 12 7.2 4.3 4.3 0 0 1 18.8 13z"/>',
@@ -95,6 +96,7 @@ function sidebar() {
     ['academic', 'academic', 'Academic Profile'],
     ['questionnaire', 'quiz', 'Questionnaire'],
     ['recommendations', 'recs', 'Recommendations'],
+    ['aggregate', 'calculator', 'Aggregate Calculator'],
     ['fields', 'fields', 'Career Fields'],
     ['universities', 'unis', 'Universities'],
     ['scholarships', 'scholarships', 'Scholarships'],
@@ -339,6 +341,7 @@ function uniBrand(u) {
     [/khyber medical|\bkmu\b/i, 'img/unis/kmu.png'],
     [/university of sindh/i, 'img/unis/sindh.png'],
     [/university of peshawar/i, 'img/unis/peshawar.png'],
+    [/superior university|\bsuperior\b/i, 'img/unis/superior.png'],
   ];
   const hit = logos.find(([re]) => re.test(name));
   if (hit) return `<img class="uni-logo-img" src="${hit[1]}" alt="">`;
@@ -357,6 +360,7 @@ function uniShortName(name) {
     [/university of sindh/i, 'Sindh'],
     [/air university/i, 'Air University'],
     [/shifa/i, 'Shifa'],
+    [/superior/i, 'Superior'],
   ];
   const alias = aliases.find(([re]) => re.test(s));
   if (alias) return alias[1];
