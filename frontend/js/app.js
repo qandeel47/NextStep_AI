@@ -21,6 +21,7 @@ function render() {
     const shellClass = [
       'app-shell',
       state.page === 'dashboard' ? 'page-dashboard' : '',
+      state.page === 'counselor' ? 'page-counselor' : '',
       state.sidebarCollapsed ? 'sidebar-collapsed' : '',
       state.mobileMenu ? 'mobile-open' : '',
     ].filter(Boolean).join(' ');

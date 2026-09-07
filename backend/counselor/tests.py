@@ -6,7 +6,11 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from counselor.models import Conversation, Message
-from counselor.service import CounselorServiceError
+from counselor.service import (
+    CounselorServiceError,
+    detect_reply_language,
+    extract_visible_reply,
+)
 
 
 class CounselorApiTests(APITestCase):
@@ -86,3 +90,27 @@ class CounselorApiTests(APITestCase):
         self.client.force_authenticate(user=None)
         response = self.client.get(reverse('counselor-conversation-list'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_extract_visible_reply_skips_thoughts_and_meta(self):
+        data = {
+            'candidates': [{
+                'content': {
+                    'parts': [
+                        {'thought': True, 'text': 'internal plan'},
+                        {'text': '/Acknowledge:* Hafsa, aap ke marks ache hain.\n- NUST\n- HEC scholarship'},
+                    ],
+                },
+            }],
+        }
+        reply = extract_visible_reply(data)
+        self.assertNotIn('internal plan', reply)
+        self.assertNotIn('Acknowledge', reply)
+        self.assertIn('NUST', reply)
+
+    def test_detect_reply_language_follows_the_latest_message(self):
+        english = detect_reply_language('Which universities match my marks?')
+        roman = detect_reply_language('Mujhe relevant universities aur scholarships batao.')
+        urdu = detect_reply_language('مجھے یونیورسٹی بتائیں')
+        self.assertIn('English', english)
+        self.assertIn('Roman Urdu', roman)
+        self.assertIn('Urdu script', urdu)
