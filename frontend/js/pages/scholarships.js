@@ -59,16 +59,16 @@ function scholDeadlineKind(s) {
 }
 function scholBrand(s) {
   const p = `${s.provider || ''} ${s.name || ''}`.toLowerCase();
-  if (/ehsaas/.test(p)) return { letters: 'EH', color: '#0B1F4D', img: 'img/schols/ehsaas.png' };
-  if (/beef/.test(p)) return { letters: 'BEEF', color: '#0B1F4D', img: 'img/schols/beef.png' };
-  if (/honhaar/.test(p)) return { letters: 'HH', color: '#0B1F4D', img: 'img/schols/honhaar.png' };
-  if (/seef|government of sindh/.test(p)) return { letters: 'SEEF', color: '#0B1F4D', img: 'img/schols/sindh.png' };
-  if (/cmeef|khyber pakhtunkhwa/.test(p)) return { letters: 'KPK', color: '#0B1F4D', img: 'img/schols/kpk.png' };
-  if (/fee reimbursement|prime minister/.test(p)) return { letters: 'HEC', color: '#0B1F4D', img: 'img/schols/hec.png' };
-  if (/hec/.test(p)) return { letters: 'HEC', color: '#0B1F4D', img: 'img/schols/hec.png' };
-  if (/peef/.test(p)) return { letters: 'PEEF', color: '#0B1F4D', img: '' };
+  if (/ehsaas/.test(p)) return { letters: 'EH', color: '#0b6799', img: 'img/schols/ehsaas.png' };
+  if (/beef/.test(p)) return { letters: 'BEEF', color: '#0b6799', img: 'img/schols/beef.png' };
+  if (/honhaar/.test(p)) return { letters: 'HH', color: '#0b6799', img: 'img/schols/honhaar.png' };
+  if (/seef|government of sindh/.test(p)) return { letters: 'SEEF', color: '#0b6799', img: 'img/schols/sindh.png' };
+  if (/cmeef|khyber pakhtunkhwa/.test(p)) return { letters: 'KPK', color: '#0b6799', img: 'img/schols/kpk.png' };
+  if (/fee reimbursement|prime minister/.test(p)) return { letters: 'HEC', color: '#0b6799', img: 'img/schols/hec.png' };
+  if (/hec/.test(p)) return { letters: 'HEC', color: '#0b6799', img: 'img/schols/hec.png' };
+  if (/peef/.test(p)) return { letters: 'PEEF', color: '#0b6799', img: '' };
   const letters = String(s.provider || 'G').split(/\s+/).map((w) => w[0]).join('').slice(0, 3).toUpperCase();
-  return { letters: letters || 'G', color: '#0B1F4D', img: '' };
+  return { letters: letters || 'G', color: '#0b6799', img: '' };
 }
 function scholLogoHtml(s, extraClass) {
   const b = scholBrand(s);

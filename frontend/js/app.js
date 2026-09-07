@@ -20,13 +20,14 @@ function render() {
   } else {
     const shellClass = [
       'app-shell',
+      state.page === 'dashboard' ? 'page-dashboard' : '',
       state.sidebarCollapsed ? 'sidebar-collapsed' : '',
       state.mobileMenu ? 'mobile-open' : '',
     ].filter(Boolean).join(' ');
     html = `<div class="${shellClass}">
       <div class="sidebar-backdrop" onclick="toggleMobileNav(false)"></div>
       ${sidebar()}
-      <div class="app-main">${topbarFor()}<div class="app-content${state.page==='academic'?' academic-content':''}${state.page==='questionnaire'?' quiz-content':''}${state.page==='recommendations'?' recs-content':''}${state.page==='universities'?' unis-content':''}${state.page==='scholarships'?' schols-content':''}${state.page==='counselor'?' counselor-content':''}">${pageHeading()}${content()}</div></div>
+      <div class="app-main">${topbarFor()}<div class="app-content${state.page==='dashboard'?' dash-content':''}${state.page==='academic'?' academic-content':''}${state.page==='questionnaire'?' quiz-content':''}${state.page==='recommendations'?' recs-content':''}${state.page==='universities'?' unis-content':''}${state.page==='scholarships'?' schols-content':''}${state.page==='counselor'?' counselor-content':''}">${pageHeading()}${content()}</div></div>
     </div>`;
     if (state.page !== 'academic' && state.page !== 'counselor') {
       html += `<button class="ai-launcher" type="button" onclick="openAiChat()" title="Chat with AI" aria-label="Open AI chat">

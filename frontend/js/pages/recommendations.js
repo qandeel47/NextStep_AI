@@ -87,7 +87,7 @@ function pageRecs() {
         <div class="recs-hero-main">
           <div class="recs-hero-top">
             <div class="recs-ring">
-              ${ring(top.match, 128, 'Overall Match', '#0B1F4D')}
+              ${ring(top.match, 128, 'Overall Match', '#0b6799')}
               <span class="badge badge-navy">${matchGrade(top.match)}</span>
             </div>
             <div>

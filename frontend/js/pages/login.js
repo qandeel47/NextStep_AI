@@ -18,7 +18,7 @@ async function doLogin(e) {
   return false;
 }
 function pageLogin() {
-  return `<div class="auth-page" style="background-image:linear-gradient(180deg,rgba(7,21,54,.35),rgba(11,31,77,.45)),url('img/auth-bg.png');background-size:cover;background-position:center;background-repeat:no-repeat;">
+  return `<div class="auth-page" style="background-image:linear-gradient(180deg,rgba(7,70,102,.35),rgba(11,103,153,.45)),url('img/auth-bg.png');background-size:cover;background-position:center;background-repeat:no-repeat;">
     <div class="auth-card">
       <h2>Welcome back</h2>
       <p class="auth-sub">Log in to continue your career journey.</p>

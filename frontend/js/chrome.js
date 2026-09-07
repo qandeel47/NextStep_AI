@@ -1,6 +1,6 @@
 function brandMark(size) {
   const s = size || 32;
-  return `<img class="brand-mark" src="img/logo.png" alt="NextStep AI" width="${s}" height="${s}">`;
+  return `<img class="brand-mark" src="img/logo.png?v=brandblue3" alt="NextStep AI" width="${s}" height="${s}">`;
 }
 
 function navIcon(name) {
@@ -290,7 +290,7 @@ function passwordModalHtml() {
   </div>`;
 }
 
-function ring(pct, size=96, label='Match', color='#0B1F4D') {
+function ring(pct, size=96, label='Match', color='#0b6799') {
   const r = size/2 - 8, c = 2*Math.PI*r, off = c - (pct/100)*c;
   return `<div class="ring-wrap" style="width:${size}px;height:${size}px">
     <svg width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#E5E7EB" stroke-width="8"/>

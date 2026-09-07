@@ -44,10 +44,10 @@ function dashSparkline(field) {
   });
   const line = coords.map((p) => p.join(',')).join(' ');
   const area = `${pad},${h - pad} ${line} ${w - pad},${h - pad}`;
-  const dots = coords.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.4" fill="#0B1F4D"></circle>`).join('');
+  const dots = coords.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.4" fill="#0b6799"></circle>`).join('');
   return `<svg class="dash-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
-    <polygon points="${area}" fill="rgba(11,31,77,.10)"></polygon>
-    <polyline points="${line}" fill="none" stroke="#0B1F4D" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>
+    <polygon points="${area}" fill="rgba(11,103,153,.12)"></polygon>
+    <polyline points="${line}" fill="none" stroke="#0b6799" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>
     ${dots}
   </svg>`;
 }
@@ -93,7 +93,7 @@ function pageDashboard() {
           <strong>${dashProfileLabel(pct)}</strong>
           <button type="button" class="dash-link" onclick="nav('academic')">${pct >= 100 ? 'View profile →' : 'Complete now →'}</button>
         </div>
-        ${ring(pct, 76, '')}
+        ${ring(pct, 76, '', '#0b6799')}
       </div>
       <div class="card dash-metric">
         <div class="dash-metric-copy">
@@ -102,7 +102,7 @@ function pageDashboard() {
           <span class="hint">${ready && top ? `${Number(top.match)}% match` : 'Add profile data to unlock'}</span>
           <button type="button" class="dash-link" onclick="nav('${ready && top ? 'recommendations' : 'academic'}')">${ready && top ? 'View match →' : 'Start profile →'}</button>
         </div>
-        ${ready && top ? ring(Number(top.match) || 0, 76, '') : ring(0, 76, '')}
+        ${ready && top ? ring(Number(top.match) || 0, 76, '', '#0b6799') : ring(0, 76, '', '#0b6799')}
       </div>
       <div class="card dash-metric">
         <div class="dash-metric-ic">${navIcon('unis')}</div>
@@ -136,7 +136,7 @@ function pageDashboard() {
               <span>${dashMatchLabel(f.match)}</span>
             </div>
             ${dashSparkline(f)}
-            ${ring(Number(f.match) || 0, 56, '')}
+            ${ring(Number(f.match) || 0, 56, '', '#0b6799')}
           </button>`).join('')
         : `<p class="helper">Complete your academic profile and questionnaire to see ranked career matches.</p>
            <button type="button" class="btn btn-primary btn-sm" onclick="nav('academic')">Start academic profile</button>`}
