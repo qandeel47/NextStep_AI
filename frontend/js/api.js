@@ -127,6 +127,11 @@ function clearSession() {
   state.counselorStatus = 'idle';
   state.counselorError = '';
   state.counselorSending = false;
+  state.counselorDraft = '';
+  state.counselorNewChat = false;
+  state.counselorThoughts = '';
+  state.counselorStreamText = '';
+  state.counselorMoreQuestions = false;
   if (typeof GUEST_PAGES !== 'undefined' && !GUEST_PAGES.includes(state.page)) {
     state.page = 'landing';
     state.params = {};
@@ -559,10 +564,11 @@ async function apiCreateCounselorConversation() {
 }
 
 async function apiLoadCounselorMessages(conversationId) {
-  return apiRequest(
+  const data = await apiRequest(
     `/api/counselor/conversations/${conversationId}/messages/`,
     { headers: authHeaders(false) },
   );
+  return asList(data);
 }
 
 async function apiSendCounselorMessage(conversationId, message) {
@@ -574,6 +580,74 @@ async function apiSendCounselorMessage(conversationId, message) {
       body: JSON.stringify({ message }),
     },
   );
+}
+
+async function apiStreamCounselorMessage(conversationId, message, onEvent, retried = false) {
+  const path = `/api/counselor/conversations/${conversationId}/messages/?stream=1`;
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ message }),
+    });
+  } catch (e) {
+    const err = new Error(`Cannot reach API at ${API_BASE}. Start Django on port 8000, then hard-refresh.`);
+    err.status = 0;
+    throw err;
+  }
+  if (res.status === 401 && !retried) {
+    const ok = await refreshAccessToken();
+    if (ok) {
+      return apiStreamCounselorMessage(conversationId, message, onEvent, true);
+    }
+  }
+  if (res.status === 401 && getToken()) {
+    clearSession();
+  }
+  if (!res.ok) {
+    let data = {};
+    try { data = await res.json(); } catch (e) { data = {}; }
+    const err = new Error(apiErrorMessage(data));
+    err.status = res.status;
+    throw err;
+  }
+  if (!res.body) {
+    throw new Error('The counselor could not stream a reply.');
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let doneMessage = null;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const chunks = buffer.split('\n\n');
+    buffer = chunks.pop() || '';
+    for (const chunk of chunks) {
+      const line = chunk.split('\n').find((item) => item.startsWith('data:'));
+      if (!line) continue;
+      let payload;
+      try {
+        payload = JSON.parse(line.slice(5).trim());
+      } catch (e) {
+        continue;
+      }
+      if (payload.type === 'error') {
+        throw new Error(payload.detail || 'The counselor could not respond.');
+      }
+      if (payload.type === 'done') {
+        doneMessage = payload.message;
+        continue;
+      }
+      if (typeof onEvent === 'function') onEvent(payload);
+    }
+  }
+  if (!doneMessage) {
+    throw new Error('The counselor could not answer that request.');
+  }
+  return doneMessage;
 }
 
 async function apiDeleteCounselorConversation(conversationId) {

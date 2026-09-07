@@ -32,7 +32,7 @@ function openAiChat() {
 }
 
 function aiChatIcon(cls) {
-  return `<img class="${cls || ''}" src="img/ai-chat.png" alt="" width="48" height="44">`;
+  return `<img class="${cls || 'ai-chat-icon'}" src="img/chatbot-logo.png?v=chatlogo2" alt="ChatBot">`;
 }
 
 function hasGuidanceData() {
@@ -200,7 +200,7 @@ function chromeTopbar() {
 }
 
 function pageHeading() {
-  if (state.page === 'dashboard') return '';
+  if (state.page === 'dashboard' || state.page === 'counselor') return '';
   const map = {
     counselor: ['AI Career Counselor', 'Ask personalized questions about careers, education and next steps.'],
     fields: ['Explore Fields', 'Browse career fields. Match % appears after your profile and questionnaire.'],
