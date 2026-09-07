@@ -206,6 +206,41 @@ function counselorMessageHtml(message) {
   </div>`;
 }
 
+function counselorTopFieldName() {
+  const recs = typeof generateRecommendations === 'function'
+    ? generateRecommendations()
+    : (state.apiRecs || []);
+  const name = recs[0] && recs[0].name;
+  return name || 'is field';
+}
+
+function counselorSuggestedQuestions() {
+  const field = counselorTopFieldName();
+  return {
+    visible: [
+      'Mere top career ke liye step-by-step roadmap banao',
+      `Mujhe ${field} mein kya subjects parhne honge?`,
+      'Meri profile ke hisab se best universities kaunsi hain?',
+    ],
+    extra: [
+      'Entry test ki tayari kaise karoon?',
+      'Mujhe kaunsi scholarships mil sakti hain?',
+      'Do career fields ka comparison karo mere liye',
+    ],
+  };
+}
+
+function counselorSuggestionButtons(items) {
+  return items.map((text) => (
+    `<button type="button" onclick='useCounselorSuggestion(${JSON.stringify(text)})'>${esc(text)}</button>`
+  )).join('');
+}
+
+function toggleCounselorMoreQuestions() {
+  state.counselorMoreQuestions = !state.counselorMoreQuestions;
+  render();
+}
+
 function pageCounselor() {
   if (state.counselorStatus === 'idle') {
     initializeCounselor();
@@ -214,11 +249,8 @@ function pageCounselor() {
 
   const activeId = state.counselorConversationId;
   const messages = state.counselorMessages;
-  const suggestions = [
-    'What careers match my marks and interests?',
-    'Mere top career ka 5-step roadmap explain karo.',
-    'Which universities fit my profile, and what entry test do I need?',
-  ];
+  const suggestions = counselorSuggestedQuestions();
+  const moreOpen = !!state.counselorMoreQuestions;
 
   return `<div class="counselor-layout">
     <aside class="chat-history card">
@@ -252,7 +284,11 @@ function pageCounselor() {
               <h3>How can I guide you?</h3>
               <p>I can explain career matches, build a roadmap, and help you explore universities or scholarships.</p>
               <div class="chat-suggestions">
-                ${suggestions.map((text) => `<button onclick="useCounselorSuggestion('${text.replace(/'/g, "\\'")}')">${esc(text)}</button>`).join('')}
+                ${counselorSuggestionButtons(suggestions.visible)}
+                <button type="button" class="chat-suggest-more" onclick="toggleCounselorMoreQuestions()" aria-expanded="${moreOpen ? 'true' : 'false'}">
+                  ${moreOpen ? 'Fewer questions ▴' : 'More questions ▾'}
+                </button>
+                ${moreOpen ? `<div class="chat-suggest-extra">${counselorSuggestionButtons(suggestions.extra)}</div>` : ''}
               </div>
             </div>`}
         ${state.counselorSending

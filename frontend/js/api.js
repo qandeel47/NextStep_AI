@@ -131,6 +131,7 @@ function clearSession() {
   state.counselorNewChat = false;
   state.counselorThoughts = '';
   state.counselorStreamText = '';
+  state.counselorMoreQuestions = false;
   if (typeof GUEST_PAGES !== 'undefined' && !GUEST_PAGES.includes(state.page)) {
     state.page = 'landing';
     state.params = {};

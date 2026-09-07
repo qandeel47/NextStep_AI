@@ -788,6 +788,14 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: upp
 .chat-suggestions { display: grid; gap: 8px; }
 .chat-suggestions button { border: 1px solid var(--border); border-radius: 9px; background: #fff; padding: 10px 12px; color: var(--text); cursor: pointer; text-align: left; font-size: 12.5px; }
 .chat-suggestions button:hover { border-color: var(--navy); color: var(--navy); }
+.chat-suggestions .chat-suggest-more {
+  border-style: dashed;
+  color: var(--navy);
+  font-weight: 700;
+  text-align: center;
+}
+.chat-suggestions .chat-suggest-more:hover { background: var(--soft); }
+.chat-suggest-extra { display: grid; gap: 8px; }
 .chat-compose {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 88px;

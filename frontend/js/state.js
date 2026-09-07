@@ -53,6 +53,7 @@ const state = {
   counselorNewChat: false,
   counselorThoughts: '',
   counselorStreamText: '',
+  counselorMoreQuestions: false,
   sidebarCollapsed: localStorage.getItem('ns_sidebar') === '1',
   mobileMenu: false,
   userMenuOpen: false,
