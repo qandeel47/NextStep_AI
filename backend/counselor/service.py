@@ -294,7 +294,10 @@ def _raise_gemini_http(exc):
     detail = exc.read().decode('utf-8', errors='replace')[:300]
     logger.warning('Gemini request failed with HTTP %s: %s', exc.code, detail)
     if exc.code == 429:
-        raise CounselorServiceError('The counselor is busy. Please try again shortly.') from exc
+        raise CounselorServiceError(
+            'Gemini quota is used up for now. Wait a few minutes, then try again. '
+            'Check usage at https://ai.dev/rate-limit'
+        ) from exc
     raise CounselorServiceError('The counselor service is temporarily unavailable.') from exc
 
 
