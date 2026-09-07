@@ -1,15 +1,22 @@
+from io import BytesIO
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 from django.contrib.auth import get_user_model
+from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from counselor.models import Conversation, Message
+from counselor import service as counselor_service
 from counselor.service import (
     CounselorServiceError,
     detect_reply_language,
     extract_visible_reply,
+    gemini_api_keys,
+    generate_reply,
+    recent_history,
 )
 
 
@@ -114,3 +121,77 @@ class CounselorApiTests(APITestCase):
         self.assertIn('English', english)
         self.assertIn('Roman Urdu', roman)
         self.assertIn('Urdu script', urdu)
+
+    def test_recent_history_keeps_last_six_exchanges(self):
+        class Item:
+            def __init__(self, index):
+                self.index = index
+
+        items = [Item(i) for i in range(20)]
+        sliced = recent_history(items, 6)
+        self.assertEqual(len(sliced), 12)
+        self.assertEqual(sliced[0].index, 8)
+        self.assertEqual(sliced[-1].index, 19)
+
+
+def _http_error(code, body=b'quota'):
+    return HTTPError(
+        'https://generativelanguage.googleapis.com/quota',
+        code,
+        'Error',
+        hdrs=None,
+        fp=BytesIO(body),
+    )
+
+
+def _quota_error(*_args, **_kwargs):
+    raise _http_error(429)
+
+
+class GeminiKeyRotationTests(SimpleTestCase):
+    def setUp(self):
+        counselor_service._active_key_index = 0
+
+    @override_settings(
+        GEMINI_API_KEY='key-a',
+        GEMINI_API_KEYS=['key-a', 'key-b', '', 'key-b', 'key-c'],
+        GEMINI_MODEL='gemini-3.6-flash',
+    )
+    def test_gemini_keys_keep_order_and_skip_duplicates(self):
+        self.assertEqual(gemini_api_keys(), ['key-a', 'key-b', 'key-c'])
+
+    @override_settings(
+        GEMINI_API_KEYS=['key-1', 'key-2'],
+        GEMINI_MODEL='gemini-3.6-flash',
+    )
+    @patch('counselor.service._build_payload', return_value={'generationConfig': {}})
+    @patch('counselor.service._post_gemini')
+    def test_generate_reply_uses_next_key_after_quota(self, mocked_post, _payload):
+        mocked_post.side_effect = [
+            _http_error(429),
+            {
+                'candidates': [{
+                    'content': {'parts': [{'text': 'Check the listed universities.'}]},
+                }],
+            },
+        ]
+
+        reply, model = generate_reply(None, [], 'Which university?')
+
+        self.assertEqual(reply, 'Check the listed universities.')
+        self.assertEqual(model, 'gemini-3.6-flash')
+        self.assertEqual(mocked_post.call_count, 2)
+        self.assertEqual(mocked_post.call_args_list[0].args[2], 'key-1')
+        self.assertEqual(mocked_post.call_args_list[1].args[2], 'key-2')
+        self.assertEqual(counselor_service._active_key_index, 1)
+
+    @override_settings(
+        GEMINI_API_KEYS=['key-1', 'key-2'],
+        GEMINI_MODEL='gemini-3.6-flash',
+    )
+    @patch('counselor.service._build_payload', return_value={'generationConfig': {}})
+    @patch('counselor.service._post_gemini', side_effect=_quota_error)
+    def test_generate_reply_errors_when_every_key_is_exhausted(self, _post, _payload):
+        with self.assertRaises(CounselorServiceError) as caught:
+            generate_reply(None, [], 'Which university?')
+        self.assertIn('quota', str(caught.exception).lower())

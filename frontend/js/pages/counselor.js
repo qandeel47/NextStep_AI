@@ -96,7 +96,8 @@ function updateCounselorLive() {
   const streamEl = document.getElementById('counselor-stream-body');
   if (streamEl && state.counselorStreamText) {
     streamEl.classList.remove('chat-typing');
-    streamEl.innerHTML = esc(state.counselorStreamText).replace(/\n/g, '<br>');
+    streamEl.classList.add('chat-md');
+    streamEl.innerHTML = counselorMarkdownHtml(state.counselorStreamText);
   }
   const messages = document.getElementById('counselor-messages');
   if (messages) messages.scrollTop = messages.scrollHeight;
@@ -193,15 +194,66 @@ function counselorThoughtHtml(thoughts, open) {
   </details>`;
 }
 
+function counselorMarkdownHtml(raw) {
+  const lines = esc(raw || '').split('\n');
+  const html = [];
+  let listType = '';
+
+  const closeList = () => {
+    if (!listType) return;
+    html.push(listType === 'ol' ? '</ol>' : '</ul>');
+    listType = '';
+  };
+
+  const inlineFmt = (text) => text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^\*])\*(?!\*)([^*]+)\*(?!\*)/g, '$1<em>$2</em>');
+
+  lines.forEach((rawLine) => {
+    const line = rawLine.trim();
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    const ordered = line.match(/^\d+\.\s+(.+)$/);
+    const bullet = line.match(/^[-*]\s+(.+)$/);
+    if (heading) {
+      closeList();
+      const level = heading[1].length;
+      html.push(`<h${level}>${inlineFmt(heading[2])}</h${level}>`);
+    } else if (ordered) {
+      if (listType !== 'ol') {
+        closeList();
+        html.push('<ol>');
+        listType = 'ol';
+      }
+      html.push(`<li>${inlineFmt(ordered[1])}</li>`);
+    } else if (bullet) {
+      if (listType !== 'ul') {
+        closeList();
+        html.push('<ul>');
+        listType = 'ul';
+      }
+      html.push(`<li>${inlineFmt(bullet[1])}</li>`);
+    } else if (!line.trim()) {
+      closeList();
+    } else {
+      closeList();
+      html.push(`<p>${inlineFmt(line)}</p>`);
+    }
+  });
+  closeList();
+  return html.join('') || '<p></p>';
+}
+
 function counselorMessageHtml(message) {
-  const content = esc(message.content).replace(/\n/g, '<br>');
   const assistant = message.role === 'assistant';
+  const content = assistant
+    ? counselorMarkdownHtml(message.content)
+    : esc(message.content).replace(/\n/g, '<br>');
   const thoughts = assistant ? counselorThoughtHtml(message.thoughts || '', false) : '';
   return `<div class="chat-message ${assistant ? 'assistant' : 'user'}">
     <div class="chat-avatar${assistant ? ' chat-avatar-ai' : ''}">${assistant ? aiChatIcon() : 'You'}</div>
     <div class="chat-stack">
       ${thoughts}
-      <div class="chat-bubble">${content}</div>
+      <div class="chat-bubble${assistant ? ' chat-md' : ''}">${content}</div>
     </div>
   </div>`;
 }
@@ -269,9 +321,12 @@ function pageCounselor() {
 
     <section class="chat-panel card">
       <div class="chat-panel-head">
-        <div>
-          <h3>NextStep AI Counselor</h3>
-          <p>Personalized guidance from your profile and recommendations</p>
+        <div class="chat-panel-brand">
+          ${aiChatIcon('chat-head-logo')}
+          <div>
+            <h3>NextStep AI Counselor</h3>
+            <p>Personalized guidance from your profile and recommendations</p>
+          </div>
         </div>
         ${activeId ? '<button class="btn btn-ghost btn-sm" onclick="deleteCounselorConversation()">Delete</button>' : ''}
       </div>
@@ -297,7 +352,7 @@ function pageCounselor() {
               <div class="chat-stack">
                 ${counselorThoughtHtml(state.counselorThoughts, true)}
                 ${state.counselorStreamText
-                  ? `<div class="chat-bubble" id="counselor-stream-body">${esc(state.counselorStreamText).replace(/\n/g, '<br>')}</div>`
+                  ? `<div class="chat-bubble chat-md" id="counselor-stream-body">${counselorMarkdownHtml(state.counselorStreamText)}</div>`
                   : '<div class="chat-bubble chat-typing" id="counselor-stream-body">Preparing an answer…</div>'}
               </div>
             </div>`

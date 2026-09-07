@@ -292,7 +292,33 @@ SPECTACULAR_SETTINGS = {
 
 # AI career counselor
 
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+def _load_gemini_api_keys():
+    values = []
+    for name in (
+        'GEMINI_API_KEY',
+        'GEMINI_API_KEY_2',
+        'GEMINI_API_KEY_3',
+        'GEMINI_API_KEY_4',
+    ):
+        raw = os.getenv(name, '').strip()
+        if raw:
+            values.append(raw)
+    extra = os.getenv('GEMINI_API_KEYS', '')
+    for part in extra.replace(';', ',').split(','):
+        raw = part.strip()
+        if raw:
+            values.append(raw)
+    unique = []
+    seen = set()
+    for key in values:
+        if key not in seen:
+            unique.append(key)
+            seen.add(key)
+    return unique
+
+
+GEMINI_API_KEYS = _load_gemini_api_keys()
+GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ''
 GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-3.6-flash')
 
 

@@ -32,12 +32,7 @@ function openAiChat() {
 }
 
 function aiChatIcon(cls) {
-  return `<svg class="${cls || 'ai-chat-icon'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M6 7.5A3.5 3.5 0 0 1 9.5 4h5A3.5 3.5 0 0 1 18 7.5v5A3.5 3.5 0 0 1 14.5 16H12l-3 2.4V16H9.5A3.5 3.5 0 0 1 6 12.5z"/>
-    <circle cx="10" cy="9.2" r=".85" fill="currentColor" stroke="none"/>
-    <circle cx="14" cy="9.2" r=".85" fill="currentColor" stroke="none"/>
-    <path d="M10 12.2h4"/>
-  </svg>`;
+  return `<img class="${cls || 'ai-chat-icon'}" src="img/chatbot-logo.png?v=chatmd1" alt="ChatBot">`;
 }
 
 function hasGuidanceData() {
