@@ -12,10 +12,11 @@ from drf_spectacular.views import (
 )
 from rest_framework.permissions import AllowAny
 
-from config.views import health_check
+from config.views import api_root, health_check
 from users.api.token_views import TaggedTokenRefreshView
 
 urlpatterns = [
+    path('', api_root, name='project-api-root'),
     path('health/', health_check, name='health-check'),
     path('admin/', admin.site.urls),
     path('api/', include('users.api.urls')),

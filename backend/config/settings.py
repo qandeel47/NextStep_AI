@@ -128,6 +128,13 @@ if database_url := os.getenv('DATABASE_URL'):
             ssl_require=not DEBUG,
         )
     }
+elif env_bool('USE_SQLITE', True):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 else:
     DATABASES = {
         'default': {
