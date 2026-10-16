@@ -263,21 +263,20 @@ function counselorTopFieldName() {
     ? generateRecommendations()
     : (state.apiRecs || []);
   const name = recs[0] && recs[0].name;
-  return name || 'is field';
-}
+  return name || 'my top field';}
 
 function counselorSuggestedQuestions() {
   const field = counselorTopFieldName();
   return {
     visible: [
-      'Mere top career ke liye step-by-step roadmap banao',
-      `Mujhe ${field} mein kya subjects parhne honge?`,
-      'Meri profile ke hisab se best universities kaunsi hain?',
+      'Create a step-by-step roadmap for my top career',
+      `What subjects will I need to study for ${field}?`,
+      'Which universities are best for my profile?',
     ],
     extra: [
-      'Entry test ki tayari kaise karoon?',
-      'Mujhe kaunsi scholarships mil sakti hain?',
-      'Do career fields ka comparison karo mere liye',
+      'How do I prepare for the entry test?',
+      'Which scholarships can I get?',
+      'Compare two career fields for me',
     ],
   };
 }
