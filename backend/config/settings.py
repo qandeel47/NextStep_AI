@@ -296,9 +296,11 @@ def _load_gemini_api_keys():
     values = []
     for name in (
         'GEMINI_API_KEY',
+        'GEMINI_API_KEY_1',
         'GEMINI_API_KEY_2',
         'GEMINI_API_KEY_3',
         'GEMINI_API_KEY_4',
+        'GEMINI_API_KEY_5',
     ):
         raw = os.getenv(name, '').strip()
         if raw:
@@ -319,7 +321,7 @@ def _load_gemini_api_keys():
 
 GEMINI_API_KEYS = _load_gemini_api_keys()
 GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ''
-GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-3.6-flash')
+GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
 
 
 # CORS and production security

@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 from unittest.mock import patch
 from urllib.error import HTTPError
@@ -151,6 +152,26 @@ def _quota_error(*_args, **_kwargs):
 class GeminiKeyRotationTests(SimpleTestCase):
     def setUp(self):
         counselor_service._active_key_index = 0
+
+    @patch.dict(
+        os.environ,
+        {
+            'GEMINI_API_KEY_1': 'legacy-key-a',
+            'GEMINI_API_KEY_2': 'legacy-key-b',
+            'GEMINI_API_KEY_5': 'legacy-key-c',
+            'GEMINI_API_KEY': '',
+            'GEMINI_API_KEY_3': '',
+            'GEMINI_API_KEY_4': '',
+        },
+        clear=True,
+    )
+    def test_load_gemini_api_keys_accepts_numeric_suffix_variants(self):
+        from config import settings as app_settings
+
+        self.assertEqual(
+            app_settings._load_gemini_api_keys(),
+            ['legacy-key-a', 'legacy-key-b', 'legacy-key-c'],
+        )
 
     @override_settings(
         GEMINI_API_KEY='key-a',
