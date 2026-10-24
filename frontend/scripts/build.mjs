@@ -16,7 +16,9 @@ await Promise.all([
   cp(resolve(root, 'index.html'), resolve(output, 'index.html')),
   cp(resolve(root, 'css'), resolve(output, 'css'), { recursive: true }),
   cp(resolve(root, 'js'), resolve(output, 'js'), { recursive: true }),
+  cp(resolve(root, 'img'), resolve(output, 'img'), { recursive: true }),
 ]);
+
 await writeFile(
   resolve(output, 'config.js'),
   `window.NEXTSTEP_CONFIG = ${JSON.stringify({ API_BASE: apiBase })};\n`,
